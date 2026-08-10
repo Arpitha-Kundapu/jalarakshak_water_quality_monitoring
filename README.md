@@ -1,5 +1,4 @@
-# jalarakshak_water_quality_monitoring
-JalRakshak: An intelligent IoT and AI-driven Cyber-Physical System for real-time water quality monitoring, multi-purpose classification, and prescriptive treatment analytics.
+
 # 💧 JalRakshak: Smart Water Quality & AI Prescriptive System
 
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
