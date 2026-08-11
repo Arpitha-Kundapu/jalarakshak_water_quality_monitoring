@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'core/theme.dart';
-import 'presentation/screens/main_screen.dart';
+import 'presentation/screens/splash_screen.dart';
 
 void main() {
-  // ProviderScope is required for Riverpod state management
-  runApp(const ProviderScope(child: JalRakshakApp()));
+  runApp(
+    const ProviderScope(
+      child: JalRakshakApp(),
+    ),
+  );
 }
 
 class JalRakshakApp extends StatelessWidget {
@@ -15,9 +19,11 @@ class JalRakshakApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'JalRakshak',
-      debugShowCheckedModeBanner: false, // Removes the debug banner
-      theme: JalRakshakTheme.lightTheme, // Applies your custom Poppins theme
-      home: const MainScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: JalRakshakTheme.lightTheme,
+
+      // Splash → Language → Login → MainScreen
+      home: const SplashScreen(),
     );
   }
 }
