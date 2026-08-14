@@ -23,9 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => const LanguageScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => const LanguageScreen()),
       );
     });
   }
@@ -41,9 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return const Scaffold(
       body: SizedBox.expand(
         child: Image(
-          image: AssetImage(
-            'assets/images/jalrakshak_logo.png',
-          ),
+          image: AssetImage('assets/images/jalrakshak_logo.png'),
           fit: BoxFit.cover,
         ),
       ),
