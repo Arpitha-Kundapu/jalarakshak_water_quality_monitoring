@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/language_provider.dart';
 
 import 'dashboard_screen.dart';
 import 'live_screen.dart';
@@ -34,22 +37,20 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get currently selected language
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
 
       // ------------------------------------------------------------
       // CURRENT SCREEN
       // ------------------------------------------------------------
-
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
 
       // ------------------------------------------------------------
       // BOTTOM NAVIGATION
       // ------------------------------------------------------------
-
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -88,75 +89,53 @@ class _MainScreenState extends State<MainScreen> {
 
             showUnselectedLabels: true,
 
-            items: const [
+            // ------------------------------------------------------
+            // NAVIGATION ITEMS
+            // ------------------------------------------------------
+            items: [
               // ====================================================
               // HOME
               // ====================================================
-
               BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home_outlined,
-                ),
-                activeIcon: Icon(
-                  Icons.home,
-                ),
-                label: 'Home',
+                icon: const Icon(Icons.home_outlined),
+                activeIcon: const Icon(Icons.home),
+                label: languageProvider.text('home'),
               ),
 
               // ====================================================
               // LIVE
               // ====================================================
-
               BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.water_drop_outlined,
-                ),
-                activeIcon: Icon(
-                  Icons.water_drop,
-                ),
-                label: 'Live',
+                icon: const Icon(Icons.water_drop_outlined),
+                activeIcon: const Icon(Icons.water_drop),
+                label: languageProvider.text('live'),
               ),
 
               // ====================================================
               // HISTORY
               // ====================================================
-
               BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.bar_chart_outlined,
-                ),
-                activeIcon: Icon(
-                  Icons.bar_chart,
-                ),
-                label: 'History',
+                icon: const Icon(Icons.bar_chart_outlined),
+                activeIcon: const Icon(Icons.bar_chart),
+                label: languageProvider.text('history'),
               ),
 
               // ====================================================
               // ALERTS
               // ====================================================
-
               BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.notifications_none,
-                ),
-                activeIcon: Icon(
-                  Icons.notifications,
-                ),
-                label: 'Alerts',
+                icon: const Icon(Icons.notifications_none),
+                activeIcon: const Icon(Icons.notifications),
+                label: languageProvider.text('alerts'),
               ),
 
               // ====================================================
               // PROFILE
               // ====================================================
-
               BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.person_outline,
-                ),
-                activeIcon: Icon(
-                  Icons.person,
-                ),
-                label: 'Profile',
+                icon: const Icon(Icons.person_outline),
+                activeIcon: const Icon(Icons.person),
+                label: languageProvider.text('profile'),
               ),
             ],
           ),

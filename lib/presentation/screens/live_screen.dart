@@ -3,10 +3,11 @@ import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart' as language_provider;
 
 import '../../core/theme.dart';
-import '../../domain/entities/sensor_data.dart';
 import '../providers/sensor_provider.dart';
+import '../providers/language_provider.dart';
 
 class LiveScreen extends ConsumerWidget {
   const LiveScreen({super.key});
@@ -15,152 +16,196 @@ class LiveScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sensorStream = ref.watch(liveSensorProvider);
 
+    final language = language_provider.Provider.of<LanguageProvider>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FC),
 
+      // ============================================================
+      // APP BAR
+      // ============================================================
       appBar: AppBar(
         backgroundColor: const Color(0xFFF7F9FC),
+
         elevation: 0,
+
         automaticallyImplyLeading: false,
 
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        centerTitle: true,
+
+        title: Column(
           children: [
             Text(
-              'Live Monitoring',
-              style: TextStyle(
+              language.text('liveMonitoring'),
+
+              style: const TextStyle(
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
                 color: JalRakshakTheme.textDark,
               ),
             ),
-            SizedBox(height: 3),
+
+            const SizedBox(height: 2),
+
             Text(
-              'Real-time sensor readings',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+              language.text('realTimeSensorReadings'),
+
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
       ),
 
+      // ============================================================
+      // BODY
+      // ============================================================
       body: sensorStream.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(
-            color: JalRakshakTheme.primaryBlue,
-          ),
-        ),
-
-        error: (error, stack) => Center(
-          child: Text(
-            'Unable to receive sensor data',
-            style: TextStyle(
-              color: JalRakshakTheme.dangerRed,
-              fontWeight: FontWeight.w600,
+        // ----------------------------------------------------------
+        // LOADING
+        // ----------------------------------------------------------
+        loading: () {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: JalRakshakTheme.primaryBlue,
             ),
-          ),
-        ),
+          );
+        },
 
+        // ----------------------------------------------------------
+        // ERROR
+        // ----------------------------------------------------------
+        error: (error, stack) {
+          return Center(
+            child: Text(
+              language.text('unableSensorData'),
+
+              style: const TextStyle(
+                color: JalRakshakTheme.dangerRed,
+
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          );
+        },
+
+        // ----------------------------------------------------------
+        // DATA
+        // ----------------------------------------------------------
         data: (data) {
           return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-              14,
-              4,
-              14,
-              20,
-            ),
+            physics: const BouncingScrollPhysics(),
+
+            padding: const EdgeInsets.fromLTRB(16, 2, 16, 22),
 
             child: Column(
               children: [
                 // ==================================================
-                // LIVE STATUS
+                // LIVE STATUS BAR
                 // ==================================================
-
-                _buildLiveStatus(),
+                _buildLiveStatus(language),
 
                 const SizedBox(height: 14),
 
                 // ==================================================
-                // pH
+                // pH CARD
                 // ==================================================
-
                 _buildSensorCard(
                   title: 'pH',
+
                   value: data.ph.toStringAsFixed(1),
+
                   unit: '',
-                  minY: 6,
-                  maxY: 9,
-                  graphMinLabel: '0',
-                  graphMaxLabel: '14',
+
+                  minY: 6.2,
+
+                  maxY: 8.8,
+
+                  graphMinLabel: '6.2',
+
+                  graphMaxLabel: '8.8',
+
                   spots: _phSpots(data.ph),
+
                   lineColor: const Color(0xFF2E7DD7),
-                  status: _getPhStatus(data.ph),
+
                   statusColor: _getPhColor(data.ph),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
                 // ==================================================
-                // TDS
+                // TDS CARD
                 // ==================================================
-
                 _buildSensorCard(
                   title: 'TDS',
+
                   value: data.tds.toStringAsFixed(0),
+
                   unit: 'ppm',
+
                   minY: 0,
-                  maxY: 600,
+
+                  maxY: 900,
+
                   graphMinLabel: '0',
-                  graphMaxLabel: '2000',
+
+                  graphMaxLabel: '900',
+
                   spots: _tdsSpots(data.tds),
-                  lineColor: const Color(0xFF55A66A),
-                  status: _getTdsStatus(data.tds),
+
+                  lineColor: const Color(0xFF39A95A),
+
                   statusColor: _getTdsColor(data.tds),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
                 // ==================================================
-                // TURBIDITY
+                // TURBIDITY CARD
                 // ==================================================
-
                 _buildSensorCard(
-                  title: 'Turbidity',
+                  title: language.text('turbidity'),
+
                   value: data.turbidity.toStringAsFixed(1),
+
                   unit: 'NTU',
+
                   minY: 0,
-                  maxY: 6,
+
+                  maxY: 12,
+
                   graphMinLabel: '0',
-                  graphMaxLabel: '10',
+
+                  graphMaxLabel: '12',
+
                   spots: _turbiditySpots(data.turbidity),
-                  lineColor: const Color(0xFFFFA726),
-                  status: _getTurbidityStatus(data.turbidity),
+
+                  lineColor: const Color(0xFFFF8C00),
+
                   statusColor: _getTurbidityColor(data.turbidity),
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 14),
 
                 // ==================================================
                 // UPDATE MESSAGE
                 // ==================================================
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(
+
+                  children: [
+                    const Icon(
                       Icons.sync_rounded,
-                      size: 13,
+                      size: 15,
                       color: Colors.grey,
                     ),
-                    SizedBox(width: 5),
+
+                    const SizedBox(width: 6),
+
                     Text(
-                      'Updating every 3 seconds',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.grey,
-                      ),
+                      language.text('updatingEvery3Seconds'),
+
+                      style: const TextStyle(fontSize: 11, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -176,36 +221,36 @@ class LiveScreen extends ConsumerWidget {
   // LIVE STATUS
   // ================================================================
 
-  Widget _buildLiveStatus() {
+  Widget _buildLiveStatus(LanguageProvider language) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 12,
-      ),
+
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
 
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(13),
 
-        border: Border.all(
-          color: const Color(0xFFE8ECF2),
-        ),
+        borderRadius: BorderRadius.circular(15),
+
+        border: Border.all(color: const Color(0xFFE5EAF0)),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.025),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.035),
+
+            blurRadius: 10,
+
+            offset: const Offset(0, 3),
           ),
         ],
       ),
 
       child: Row(
         children: [
-          const Text(
-            'Live Status',
-            style: TextStyle(
+          Text(
+            language.text('liveStatus'),
+
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: JalRakshakTheme.textDark,
@@ -215,21 +260,23 @@ class LiveScreen extends ConsumerWidget {
           const Spacer(),
 
           Container(
-            width: 7,
-            height: 7,
+            width: 8,
+            height: 8,
 
             decoration: const BoxDecoration(
               color: JalRakshakTheme.safeGreen,
+
               shape: BoxShape.circle,
             ),
           ),
 
-          const SizedBox(width: 5),
+          const SizedBox(width: 6),
 
-          const Text(
-            'Connected',
-            style: TextStyle(
-              fontSize: 11,
+          Text(
+            language.text('connected'),
+
+            style: const TextStyle(
+              fontSize: 12,
               color: JalRakshakTheme.safeGreen,
               fontWeight: FontWeight.w500,
             ),
@@ -253,219 +300,275 @@ class LiveScreen extends ConsumerWidget {
     required String graphMaxLabel,
     required List<FlSpot> spots,
     required Color lineColor,
-    required String status,
     required Color statusColor,
   }) {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.fromLTRB(
-        12,
-        12,
-        10,
-        8,
-      ),
+      padding: const EdgeInsets.fromLTRB(14, 16, 14, 12),
 
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(13),
 
-        border: Border.all(
-          color: const Color(0xFFE9EDF2),
-        ),
+        borderRadius: BorderRadius.circular(18),
+
+        border: Border.all(color: const Color(0xFFE7EBF0)),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.025),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.035),
+
+            blurRadius: 12,
+
+            offset: const Offset(0, 4),
           ),
         ],
       ),
 
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
           // ========================================================
-          // TITLE
+          // LEFT VALUE SECTION
           // ========================================================
+          SizedBox(
+            width: 82,
 
-          Row(
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: JalRakshakTheme.textDark,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        title,
+
+                        overflow: TextOverflow.ellipsis,
+
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: JalRakshakTheme.textDark,
+                        ),
+                      ),
+                    ),
+
+                    if (unit.isNotEmpty)
+                      Text(
+                        ' ($unit)',
+
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey,
+                        ),
+                      ),
+                  ],
                 ),
-              ),
 
-              if (unit.isNotEmpty)
+                const SizedBox(height: 8),
+
                 Text(
-                  ' ($unit)',
+                  value,
+
                   style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 30,
+                    height: 1,
+                    fontWeight: FontWeight.w600,
                     color: JalRakshakTheme.textDark,
                   ),
                 ),
-            ],
+
+                const SizedBox(height: 10),
+
+                Container(
+                  width: 7,
+                  height: 7,
+
+                  decoration: BoxDecoration(
+                    color: statusColor,
+
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
           ),
 
-          const SizedBox(height: 4),
+          const SizedBox(width: 6),
 
           // ========================================================
-          // VALUE + GRAPH
+          // GRAPH
           // ========================================================
+          Expanded(
+            child: SizedBox(
+              height: 118,
 
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // VALUE
-              SizedBox(
-                width: 70,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: LineChart(
+                      LineChartData(
+                        minX: 0,
+                        maxX: 7,
 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                        minY: minY,
+                        maxY: maxY,
 
-                  children: [
-                    Text(
-                      value,
-                      style: const TextStyle(
-                        fontSize: 25,
-                        height: 1.1,
-                        fontWeight: FontWeight.w600,
-                        color: JalRakshakTheme.textDark,
-                      ),
-                    ),
+                        // ------------------------------------------
+                        // GRID
+                        // ------------------------------------------
+                        gridData: FlGridData(
+                          show: true,
 
-                    const SizedBox(height: 5),
+                          drawVerticalLine: false,
 
-                    Container(
-                      width: 5,
-                      height: 5,
+                          horizontalInterval: _getGridInterval(minY, maxY),
 
-                      decoration: BoxDecoration(
-                        color: statusColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                          getDrawingHorizontalLine: (value) {
+                            return FlLine(
+                              color: const Color(0xFFE5E9EE),
 
-              // GRAPH
-              Expanded(
-                child: SizedBox(
-                  height: 76,
+                              strokeWidth: 1,
 
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: LineChart(
-                          LineChartData(
-                            minX: 0,
-                            maxX: 7,
-                            minY: minY,
-                            maxY: maxY,
+                              dashArray: const [4, 4],
+                            );
+                          },
+                        ),
 
-                            gridData: const FlGridData(
-                              show: false,
+                        // ------------------------------------------
+                        // BORDER
+                        // ------------------------------------------
+                        borderData: FlBorderData(show: false),
+
+                        // ------------------------------------------
+                        // TITLES
+                        // ------------------------------------------
+                        titlesData: FlTitlesData(
+                          topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+
+                          rightTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+
+                          leftTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+
+                              reservedSize: 18,
+
+                              interval: 7,
+
+                              getTitlesWidget: (value, meta) {
+                                if (value == 0) {
+                                  return Text(
+                                    graphMinLabel,
+
+                                    style: const TextStyle(
+                                      fontSize: 8,
+                                      color: Colors.grey,
+                                    ),
+                                  );
+                                }
+
+                                if (value == 7) {
+                                  return Text(
+                                    graphMaxLabel,
+
+                                    style: const TextStyle(
+                                      fontSize: 8,
+                                      color: Colors.grey,
+                                    ),
+                                  );
+                                }
+
+                                return const SizedBox.shrink();
+                              },
                             ),
-
-                            borderData: FlBorderData(
-                              show: false,
-                            ),
-
-                            titlesData: const FlTitlesData(
-                              leftTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: false,
-                                ),
-                              ),
-                              rightTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: false,
-                                ),
-                              ),
-                              topTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: false,
-                                ),
-                              ),
-                              bottomTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: false,
-                                ),
-                              ),
-                            ),
-
-                            lineTouchData: const LineTouchData(
-                              enabled: false,
-                            ),
-
-                            clipData: const FlClipData.all(),
-
-                            lineBarsData: [
-                              LineChartBarData(
-                                spots: spots,
-
-                                isCurved: true,
-
-                                curveSmoothness: 0.25,
-
-                                color: lineColor,
-
-                                barWidth: 1.7,
-
-                                isStrokeCapRound: true,
-
-                                dotData: const FlDotData(
-                                  show: false,
-                                ),
-
-                                belowBarData: BarAreaData(
-                                  show: false,
-                                ),
-                              ),
-                            ],
                           ),
                         ),
-                      ),
 
-                      // =================================================
-                      // GRAPH AXIS LABELS
-                      // =================================================
+                        // ------------------------------------------
+                        // TOUCH
+                        // ------------------------------------------
+                        lineTouchData: const LineTouchData(enabled: false),
 
-                      Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
+                        // ------------------------------------------
+                        // CLIP
+                        // ------------------------------------------
+                        clipData: const FlClipData.all(),
 
-                        children: [
-                          Text(
-                            graphMinLabel,
-                            style: const TextStyle(
-                              fontSize: 8,
-                              color: Colors.grey,
+                        // ------------------------------------------
+                        // LINE
+                        // ------------------------------------------
+                        lineBarsData: [
+                          LineChartBarData(
+                            spots: spots,
+
+                            isCurved: true,
+
+                            curveSmoothness: 0.35,
+
+                            color: lineColor,
+
+                            barWidth: 2.4,
+
+                            isStrokeCapRound: true,
+
+                            // --------------------------------------
+                            // POINTS
+                            // --------------------------------------
+                            dotData: FlDotData(
+                              show: true,
+
+                              getDotPainter: (spot, percent, bar, index) {
+                                final bool isLast = index == spots.length - 1;
+
+                                return FlDotCirclePainter(
+                                  radius: isLast ? 4.5 : 3,
+
+                                  color: isLast ? Colors.white : lineColor,
+
+                                  strokeWidth: isLast ? 2.5 : 0,
+
+                                  strokeColor: lineColor,
+                                );
+                              },
                             ),
-                          ),
 
-                          Text(
-                            graphMaxLabel,
-                            style: const TextStyle(
-                              fontSize: 8,
-                              color: Colors.grey,
+                            // --------------------------------------
+                            // SHADED AREA
+                            // --------------------------------------
+                            belowBarData: BarAreaData(
+                              show: true,
+
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+
+                                end: Alignment.bottomCenter,
+
+                                colors: [
+                                  lineColor.withOpacity(0.16),
+
+                                  lineColor.withOpacity(0.025),
+                                ],
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ],
       ),
@@ -473,21 +576,45 @@ class LiveScreen extends ConsumerWidget {
   }
 
   // ================================================================
+  // GRID INTERVAL
+  // ================================================================
+
+  double _getGridInterval(double minY, double maxY) {
+    final double range = maxY - minY;
+
+    if (range <= 4) {
+      return 0.5;
+    }
+
+    if (range <= 15) {
+      return 2.5;
+    }
+
+    return 225;
+  }
+
+  // ================================================================
   // pH GRAPH
   // ================================================================
 
   List<FlSpot> _phSpots(double current) {
-    final double safeCurrent =
-        current.clamp(6.2, 8.8).toDouble();
+    final double safeCurrent = current.clamp(6.2, 8.8).toDouble();
 
     return [
-      FlSpot(0, _clamp(safeCurrent - 0.20, 6.2, 8.8)),
-      FlSpot(1, _clamp(safeCurrent - 0.05, 6.2, 8.8)),
-      FlSpot(2, _clamp(safeCurrent + 0.10, 6.2, 8.8)),
-      FlSpot(3, _clamp(safeCurrent - 0.02, 6.2, 8.8)),
-      FlSpot(4, _clamp(safeCurrent + 0.12, 6.2, 8.8)),
-      FlSpot(5, _clamp(safeCurrent - 0.12, 6.2, 8.8)),
-      FlSpot(6, _clamp(safeCurrent - 0.20, 6.2, 8.8)),
+      FlSpot(0, _clamp(safeCurrent - 0.38, 6.2, 8.8)),
+
+      FlSpot(1, _clamp(safeCurrent - 0.12, 6.2, 8.8)),
+
+      FlSpot(2, _clamp(safeCurrent + 0.22, 6.2, 8.8)),
+
+      FlSpot(3, _clamp(safeCurrent - 0.08, 6.2, 8.8)),
+
+      FlSpot(4, _clamp(safeCurrent + 0.30, 6.2, 8.8)),
+
+      FlSpot(5, _clamp(safeCurrent + 0.08, 6.2, 8.8)),
+
+      FlSpot(6, _clamp(safeCurrent - 0.18, 6.2, 8.8)),
+
       FlSpot(7, safeCurrent),
     ];
   }
@@ -497,17 +624,23 @@ class LiveScreen extends ConsumerWidget {
   // ================================================================
 
   List<FlSpot> _tdsSpots(double current) {
-    final double safeCurrent =
-        current.clamp(50, 550).toDouble();
+    final double safeCurrent = current.clamp(50, 900).toDouble();
 
     return [
-      FlSpot(0, _clamp(safeCurrent - 45, 50, 550)),
-      FlSpot(1, _clamp(safeCurrent - 20, 50, 550)),
-      FlSpot(2, _clamp(safeCurrent + 20, 50, 550)),
-      FlSpot(3, _clamp(safeCurrent - 15, 50, 550)),
-      FlSpot(4, _clamp(safeCurrent + 30, 50, 550)),
-      FlSpot(5, _clamp(safeCurrent + 5, 50, 550)),
-      FlSpot(6, _clamp(safeCurrent - 10, 50, 550)),
+      FlSpot(0, _clamp(safeCurrent - 70, 50, 900)),
+
+      FlSpot(1, _clamp(safeCurrent - 25, 50, 900)),
+
+      FlSpot(2, _clamp(safeCurrent + 65, 50, 900)),
+
+      FlSpot(3, _clamp(safeCurrent - 45, 50, 900)),
+
+      FlSpot(4, _clamp(safeCurrent + 90, 50, 900)),
+
+      FlSpot(5, _clamp(safeCurrent + 35, 50, 900)),
+
+      FlSpot(6, _clamp(safeCurrent - 20, 50, 900)),
+
       FlSpot(7, safeCurrent),
     ];
   }
@@ -517,67 +650,38 @@ class LiveScreen extends ConsumerWidget {
   // ================================================================
 
   List<FlSpot> _turbiditySpots(double current) {
-    final double safeCurrent =
-        current.clamp(0.2, 5.5).toDouble();
+    final double safeCurrent = current.clamp(0.2, 12.0).toDouble();
 
     return [
-      FlSpot(
-        0,
-        _clamp(safeCurrent - 0.4, 0.2, 5.5),
-      ),
-      FlSpot(
-        1,
-        _clamp(safeCurrent + 0.3, 0.2, 5.5),
-      ),
-      FlSpot(
-        2,
-        _clamp(safeCurrent + 0.1, 0.2, 5.5),
-      ),
-      FlSpot(
-        3,
-        _clamp(safeCurrent - 0.3, 0.2, 5.5),
-      ),
-      FlSpot(
-        4,
-        _clamp(safeCurrent + 0.4, 0.2, 5.5),
-      ),
-      FlSpot(
-        5,
-        _clamp(safeCurrent + 0.2, 0.2, 5.5),
-      ),
-      FlSpot(
-        6,
-        _clamp(safeCurrent - 0.1, 0.2, 5.5),
-      ),
+      FlSpot(0, _clamp(safeCurrent - 1.8, 0.2, 12.0)),
+
+      FlSpot(1, _clamp(safeCurrent - 0.6, 0.2, 12.0)),
+
+      FlSpot(2, _clamp(safeCurrent + 1.4, 0.2, 12.0)),
+
+      FlSpot(3, _clamp(safeCurrent - 1.0, 0.2, 12.0)),
+
+      FlSpot(4, _clamp(safeCurrent + 1.8, 0.2, 12.0)),
+
+      FlSpot(5, _clamp(safeCurrent + 0.5, 0.2, 12.0)),
+
+      FlSpot(6, _clamp(safeCurrent - 0.7, 0.2, 12.0)),
+
       FlSpot(7, safeCurrent),
     ];
   }
 
   // ================================================================
-  // CLAMP HELPER
-  // ================================================================
-double _clamp(
-  double value,
-  double minimum,
-  double maximum,
-) {
-  return max(
-    minimum,
-    min(maximum, value),
-  );
-}
-
-  // ================================================================
-  // pH STATUS
+  // CLAMP
   // ================================================================
 
-  String _getPhStatus(double value) {
-    if (value >= 6.5 && value <= 8.5) {
-      return 'Normal';
-    }
-
-    return 'Check';
+  double _clamp(double value, double minimum, double maximum) {
+    return max(minimum, min(maximum, value));
   }
+
+  // ================================================================
+  // pH COLOR
+  // ================================================================
 
   Color _getPhColor(double value) {
     if (value >= 6.5 && value <= 8.5) {
@@ -588,20 +692,8 @@ double _clamp(
   }
 
   // ================================================================
-  // TDS STATUS
+  // TDS COLOR
   // ================================================================
-
-  String _getTdsStatus(double value) {
-    if (value <= 300) {
-      return 'Good';
-    }
-
-    if (value <= 500) {
-      return 'Moderate';
-    }
-
-    return 'High';
-  }
 
   Color _getTdsColor(double value) {
     if (value <= 300) {
@@ -616,20 +708,8 @@ double _clamp(
   }
 
   // ================================================================
-  // TURBIDITY STATUS
+  // TURBIDITY COLOR
   // ================================================================
-
-  String _getTurbidityStatus(double value) {
-    if (value <= 1) {
-      return 'Excellent';
-    }
-
-    if (value <= 5) {
-      return 'Good';
-    }
-
-    return 'High';
-  }
 
   Color _getTurbidityColor(double value) {
     if (value <= 1) {
