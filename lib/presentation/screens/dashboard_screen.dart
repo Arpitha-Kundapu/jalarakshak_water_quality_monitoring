@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart' as language_provider;
 
 import '../../core/theme.dart';
 import '../../domain/entities/sensor_data.dart';
 import '../providers/sensor_provider.dart';
+import '../providers/language_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -17,6 +19,97 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   bool _healthExpanded = false;
   bool _treatmentExpanded = true;
   bool _precautionsExpanded = false;
+
+  LanguageProvider get _language =>
+      language_provider.Provider.of<LanguageProvider>(context);
+
+  // ================================================================
+  // TREATMENT & PRECAUTION TEXT
+  // These texts are kept inside the dashboard so no changes are
+  // required in language_provider.dart.
+  // ================================================================
+  String _dashboardText(String english) {
+    switch (_language.language) {
+      case 'ಕನ್ನಡ':
+        const kannada = {
+          'Follow these precautions to stay safe':
+              'ಸುರಕ್ಷಿತವಾಗಿರಲು ಈ ಮುನ್ನೆಚ್ಚರಿಕೆಗಳನ್ನು ಅನುಸರಿಸಿ',
+          'Do not drink untreated water.': 'ಶುದ್ಧೀಕರಿಸದ ನೀರನ್ನು ಕುಡಿಯಬೇಡಿ.',
+          'Always store water in clean containers.':
+              'ನೀರನ್ನು ಯಾವಾಗಲೂ ಸ್ವಚ್ಛವಾದ ಪಾತ್ರೆಗಳಲ್ಲಿ ಸಂಗ್ರಹಿಸಿ.',
+          'Clean your storage tanks regularly.':
+              'ನೀರಿನ ಸಂಗ್ರಹ ಟ್ಯಾಂಕ್‌ಗಳನ್ನು ನಿಯಮಿತವಾಗಿ ಸ್ವಚ್ಛಗೊಳಿಸಿ.',
+          'Boil water if unsure about quality.':
+              'ನೀರಿನ ಗುಣಮಟ್ಟದ ಬಗ್ಗೆ ಅನುಮಾನವಿದ್ದರೆ ನೀರನ್ನು ಕುದಿಸಿ.',
+          'Use proper filters and replace them on time.':
+              'ಸರಿಯಾದ ಫಿಲ್ಟರ್‌ಗಳನ್ನು ಬಳಸಿ ಮತ್ತು ಅವುಗಳನ್ನು ಸಮಯಕ್ಕೆ ಬದಲಾಯಿಸಿ.',
+          'Simple steps based on the current water condition':
+              'ಪ್ರಸ್ತುತ ನೀರಿನ ಸ್ಥಿತಿಗೆ ಅನುಗುಣವಾದ ಸರಳ ಕ್ರಮಗಳು',
+          'Use properly filtered water for drinking.':
+              'ಕುಡಿಯಲು ಸರಿಯಾಗಿ ಫಿಲ್ಟರ್ ಮಾಡಿದ ನೀರನ್ನು ಬಳಸಿ.',
+          'High TDS means the water contains a high amount of dissolved substances. Avoid drinking it directly and use properly filtered drinking water.':
+              'ಹೆಚ್ಚಿನ TDS ಎಂದರೆ ನೀರಿನಲ್ಲಿ ಹೆಚ್ಚಿನ ಪ್ರಮಾಣದ ಕರಗಿದ ಪದಾರ್ಥಗಳಿವೆ. ಈ ನೀರನ್ನು ನೇರವಾಗಿ ಕುಡಿಯಬೇಡಿ ಮತ್ತು ಸರಿಯಾಗಿ ಫಿಲ್ಟರ್ ಮಾಡಿದ ಕುಡಿಯುವ ನೀರನ್ನು ಬಳಸಿ.',
+          'Let it settle, filter it and boil before drinking.':
+              'ಕಣಗಳು ಕೆಳಗೆ ಕುಳಿತುಕೊಳ್ಳಲು ಬಿಡಿ, ಫಿಲ್ಟರ್ ಮಾಡಿ ಮತ್ತು ಕುಡಿಯುವ ಮೊದಲು ಕುದಿಸಿ.',
+          'If the water looks cloudy, keep it undisturbed so particles can settle. Filter the water and boil it before drinking.':
+              'ನೀರು ಮಸುಕಾಗಿ ಕಾಣಿಸಿದರೆ ಅದನ್ನು ಅಲುಗಾಡಿಸದೆ ಇಡಿ, ಕಣಗಳು ಕೆಳಗೆ ಕುಳಿತುಕೊಳ್ಳಲು ಬಿಡಿ. ನಂತರ ನೀರನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ ಮತ್ತು ಕುಡಿಯುವ ಮೊದಲು ಕುದಿಸಿ.',
+          'Unbalanced pH': 'ಅಸಮತೋಲಿತ pH',
+          'Avoid drinking this water directly.': 'ಈ ನೀರನ್ನು ನೇರವಾಗಿ ಕುಡಿಯಬೇಡಿ.',
+          'The measured pH is outside the preferred range. Do not drink this water directly. Use another safe drinking-water source until the water condition is checked and corrected.':
+              'ಅಳತೆ ಮಾಡಿದ pH ಶಿಫಾರಸು ಮಾಡಿದ ವ್ಯಾಪ್ತಿಯ ಹೊರಗಿದೆ. ಈ ನೀರನ್ನು ನೇರವಾಗಿ ಕುಡಿಯಬೇಡಿ. ನೀರಿನ ಸ್ಥಿತಿಯನ್ನು ಪರಿಶೀಲಿಸಿ ಸರಿಪಡಿಸುವವರೆಗೆ ಸುರಕ್ಷಿತ ಕುಡಿಯುವ ನೀರಿನ ಮೂಲವನ್ನು ಬಳಸಿ.',
+          'Unsafe Water': 'ಸುರಕ್ಷಿತವಲ್ಲದ ನೀರು',
+          'Do not drink this water directly.': 'ಈ ನೀರನ್ನು ನೇರವಾಗಿ ಕುಡಿಯಬೇಡಿ.',
+          'The current readings indicate that the water may not be suitable for drinking. Avoid direct consumption and use a safe drinking-water source.':
+              'ಪ್ರಸ್ತುತ ಮೌಲ್ಯಗಳು ಈ ನೀರು ಕುಡಿಯಲು ಸೂಕ್ತವಲ್ಲದಿರಬಹುದು ಎಂದು ಸೂಚಿಸುತ್ತವೆ. ನೇರವಾಗಿ ಕುಡಿಯುವುದನ್ನು ತಪ್ಪಿಸಿ ಮತ್ತು ಸುರಕ್ಷಿತ ಕುಡಿಯುವ ನೀರನ್ನು ಬಳಸಿ.',
+          'Water is currently within the monitored safe range.':
+              'ನೀರು ಪ್ರಸ್ತುತ ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡುತ್ತಿರುವ ಸುರಕ್ಷಿತ ವ್ಯಾಪ್ತಿಯಲ್ಲಿದೆ.',
+          'These are basic safety suggestions. The app does not directly treat the water.':
+              'ಇವು ಮೂಲಭೂತ ಸುರಕ್ಷತಾ ಸಲಹೆಗಳು. ಆಪ್ ನೀರನ್ನು ನೇರವಾಗಿ ಶುದ್ಧೀಕರಿಸುವುದಿಲ್ಲ.',
+        };
+        return kannada[english] ?? english;
+
+      case 'हिन्दी':
+        const hindi = {
+          'Follow these precautions to stay safe':
+              'सुरक्षित रहने के लिए इन सावधानियों का पालन करें',
+          'Do not drink untreated water.': 'बिना उपचार किया हुआ पानी न पिएँ।',
+          'Always store water in clean containers.':
+              'पानी को हमेशा साफ बर्तनों में रखें।',
+          'Clean your storage tanks regularly.':
+              'पानी की टंकियों को नियमित रूप से साफ करें।',
+          'Boil water if unsure about quality.':
+              'पानी की गुणवत्ता पर संदेह हो तो पानी उबालें।',
+          'Use proper filters and replace them on time.':
+              'उचित फिल्टर का उपयोग करें और उन्हें समय पर बदलें।',
+          'Simple steps based on the current water condition':
+              'वर्तमान पानी की स्थिति के अनुसार सरल उपाय',
+          'Use properly filtered water for drinking.':
+              'पीने के लिए अच्छी तरह फिल्टर किया हुआ पानी उपयोग करें।',
+          'High TDS means the water contains a high amount of dissolved substances. Avoid drinking it directly and use properly filtered drinking water.':
+              'उच्च TDS का मतलब है कि पानी में घुले हुए पदार्थ अधिक मात्रा में हैं। इसे सीधे न पिएँ और अच्छी तरह फिल्टर किया हुआ पीने का पानी उपयोग करें।',
+          'Let it settle, filter it and boil before drinking.':
+              'पानी को कुछ समय स्थिर रखें, फिल्टर करें और पीने से पहले उबालें।',
+          'If the water looks cloudy, keep it undisturbed so particles can settle. Filter the water and boil it before drinking.':
+              'यदि पानी मटमैला दिखाई देता है, तो उसे बिना हिलाए रखें ताकि कण नीचे बैठ जाएँ। फिर पानी को फिल्टर करें और पीने से पहले उबालें।',
+          'Unbalanced pH': 'असंतुलित pH',
+          'Avoid drinking this water directly.': 'इस पानी को सीधे न पिएँ।',
+          'The measured pH is outside the preferred range. Do not drink this water directly. Use another safe drinking-water source until the water condition is checked and corrected.':
+              'मापा गया pH पसंदीदा सीमा से बाहर है। इस पानी को सीधे न पिएँ। पानी की स्थिति की जाँच और सुधार होने तक सुरक्षित पीने के पानी का उपयोग करें।',
+          'Unsafe Water': 'असुरक्षित पानी',
+          'Do not drink this water directly.': 'इस पानी को सीधे न पिएँ।',
+          'The current readings indicate that the water may not be suitable for drinking. Avoid direct consumption and use a safe drinking-water source.':
+              'वर्तमान रीडिंग बताती हैं कि पानी पीने के लिए उपयुक्त नहीं हो सकता है। इसे सीधे पीने से बचें और सुरक्षित पीने के पानी का उपयोग करें।',
+          'Water is currently within the monitored safe range.':
+              'पानी वर्तमान में निगरानी की गई सुरक्षित सीमा में है।',
+          'These are basic safety suggestions. The app does not directly treat the water.':
+              'ये बुनियादी सुरक्षा सुझाव हैं। ऐप पानी को सीधे उपचारित नहीं करता है।',
+        };
+        return hindi[english] ?? english;
+
+      default:
+        return english;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +127,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         automaticallyImplyLeading: false,
         toolbarHeight: 70,
 
-        title: const Center(
+        title: Center(
           child: Text(
-            'Live Water Status',
+            _language.text('liveWaterStatus'),
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -98,8 +191,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     color: Colors.grey,
                   ),
                   const SizedBox(height: 15),
-                  const Text(
-                    'Unable to receive sensor data',
+                  Text(
+                    _language.text('unableSensorData'),
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -147,8 +240,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   // ==================================================
                   // WATER PARAMETERS
                   // ==================================================
-                  const Text(
-                    'Water Parameters',
+                  Text(
+                    _language.text('waterParameters'),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -193,14 +286,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   // ==================================================
                   // UPDATE MESSAGE
                   // ==================================================
-                  const Center(
+                  Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.sync_rounded, size: 14, color: Colors.grey),
                         SizedBox(width: 5),
                         Text(
-                          'Sensor data updates every 3 seconds',
+                          _language.text('sensorUpdates'),
                           style: TextStyle(color: Colors.grey, fontSize: 11),
                         ),
                       ],
@@ -241,9 +334,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
           const SizedBox(width: 10),
 
-          const Expanded(
+          Expanded(
             child: Text(
-              'ESP32 Sensor Connected',
+              _language.text('esp32Connected'),
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
@@ -258,8 +351,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               color: JalRakshakTheme.safeGreen,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
-              'LIVE',
+            child: Text(
+              _language.text('liveStatus'),
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 10,
@@ -305,11 +398,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final String scoreLabel;
 
     if (isSafe) {
-      scoreLabel = 'GOOD';
+      scoreLabel = _language.text('good');
     } else if (isUnsafe) {
-      scoreLabel = 'UNSAFE';
+      scoreLabel = _language.text('unsafe');
     } else {
-      scoreLabel = 'CHECK';
+      scoreLabel = _language.text('check');
     }
 
     return Container(
@@ -328,8 +421,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       ),
       child: Column(
         children: [
-          const Text(
-            'WATER QUALITY SCORE',
+          Text(
+            _language.text('waterQualityScore'),
             style: TextStyle(
               fontSize: 12,
               letterSpacing: 1.5,
@@ -444,7 +537,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           children: [
             Expanded(
               child: _buildSensorCard(
-                title: 'pH Level',
+                title: _language.text('phLevel'),
                 value: ph.toStringAsFixed(1),
                 unit: 'pH',
                 icon: Icons.science_outlined,
@@ -472,7 +565,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           children: [
             Expanded(
               child: _buildSensorCard(
-                title: 'Turbidity',
+                title: _language.text('turbidity'),
                 value: turbidity.toStringAsFixed(1),
                 unit: 'NTU',
                 icon: Icons.opacity_outlined,
@@ -484,8 +577,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
             Expanded(
               child: _buildSensorCard(
-                title: 'Monitoring',
-                value: 'LIVE',
+                title: _language.text('monitoring'),
+                value: _language.text('liveStatus'),
                 unit: '',
                 icon: Icons.sensors_rounded,
                 color: JalRakshakTheme.safeGreen,
@@ -649,9 +742,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                   const SizedBox(width: 14),
 
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Water Usage Classification',
+                      _language.text('waterUsage'),
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
@@ -677,7 +770,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
             _buildUsageOption(
               icon: Icons.local_drink_rounded,
-              title: 'Drinking',
+              title: _language.text('drinking'),
               status: drinkingSafe ? 'Safe' : 'Not Safe',
               color: drinkingSafe
                   ? JalRakshakTheme.safeGreen
@@ -686,7 +779,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
             _buildUsageOption(
               icon: Icons.restaurant_rounded,
-              title: 'Cooking',
+              title: _language.text('cooking'),
               status: cookingSafe ? 'Safe' : 'Not Safe',
               color: cookingSafe
                   ? JalRakshakTheme.safeGreen
@@ -695,7 +788,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
             _buildUsageOption(
               icon: Icons.shower_rounded,
-              title: 'Bathing',
+              title: _language.text('bathing'),
               status: bathingSafe ? 'Safe' : 'Not Safe',
               color: bathingSafe
                   ? JalRakshakTheme.safeGreen
@@ -704,7 +797,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
             _buildUsageOption(
               icon: Icons.checkroom_rounded,
-              title: 'Washing Clothes',
+              title: _language.text('washingClothes'),
               status: washingSafe ? 'Safe' : 'Not Safe',
               color: washingSafe
                   ? JalRakshakTheme.safeGreen
@@ -713,7 +806,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
             _buildUsageOption(
               icon: Icons.cleaning_services_rounded,
-              title: 'Cleaning',
+              title: _language.text('cleaning'),
               status: cleaningSafe ? 'Safe' : 'Not Safe',
               color: cleaningSafe
                   ? JalRakshakTheme.safeGreen
@@ -722,7 +815,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
             _buildUsageOption(
               icon: Icons.eco_rounded,
-              title: 'Irrigation',
+              title: _language.text('irrigation'),
               status: irrigationSafe ? 'Safe' : 'Not Safe',
               color: irrigationSafe
                   ? JalRakshakTheme.safeGreen
@@ -731,7 +824,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
             _buildUsageOption(
               icon: Icons.factory_rounded,
-              title: 'Industrial Use',
+              title: _language.text('industrialUse'),
               status: industrialModerate ? 'Moderate' : 'Not Safe',
               color: industrialModerate
                   ? JalRakshakTheme.warningOrange
@@ -827,7 +920,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
 
             Text(
-              status,
+              status == 'Safe'
+                  ? _language.text('safe')
+                  : status == 'Moderate'
+                  ? _language.text('moderate')
+                  : _language.text('notSafe'),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -913,8 +1010,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Health Risks',
+                        Text(
+                          _language.text('healthRisks'),
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -926,8 +1023,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                         Text(
                           unsafe
-                              ? 'Health concerns detected'
-                              : 'Water looks safe',
+                              ? _language.text('healthConcernsDetected')
+                              : _language.text('waterLooksSafe'),
                           style: TextStyle(
                             fontSize: 12,
                             color: healthColor,
@@ -1017,7 +1114,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                unsafe ? 'Water is NOT SAFE' : 'Water is Safe',
+                                unsafe
+                                    ? _language.text('waterNotSafe')
+                                    : _language.text('waterLooksSafe'),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -1029,8 +1128,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                               Text(
                                 unsafe
-                                    ? 'Avoid direct drinking until the water is made safe.'
-                                    : 'Current readings are within the safe range.',
+                                    ? _language.text('avoidDrinking')
+                                    : _language.text('safeRange'),
                                 style: const TextStyle(
                                   fontSize: 11,
                                   color: Colors.grey,
@@ -1070,8 +1169,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           ),
                           child: Text(
                             unsafe
-                                ? 'Some water parameters are outside the recommended range. Please check the risks below.'
-                                : 'Your current water readings do not indicate a major health concern.',
+                                ? _language.text('healthRiskDetected')
+                                : _language.text('noHealthConcern'),
                             style: const TextStyle(
                               fontSize: 11,
                               color: Colors.grey,
@@ -1088,8 +1187,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   // ==================================================
                   // POSSIBLE HEALTH ISSUES
                   // ==================================================
-                  const Text(
-                    'Possible Health Issues',
+                  Text(
+                    _language.text('possibleHealthIssues'),
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -1102,36 +1201,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   if (highTds)
                     _buildHealthRiskItem(
                       icon: Icons.water_drop_outlined,
-                      title: 'High TDS',
-                      description:
-                          'High dissolved solids may indicate excess minerals or dissolved substances.',
+                      title: _language.text('highTds'),
+                      description: _language.text('highTdsDescription'),
                       color: JalRakshakTheme.dangerRed,
                     ),
 
                   if (highTurbidity)
                     _buildHealthRiskItem(
                       icon: Icons.opacity_rounded,
-                      title: 'High Turbidity',
-                      description:
-                          'Suspended particles may make the water cloudy and reduce its quality.',
+                      title: _language.text('highTurbidity'),
+                      description: _language.text('highTurbidityDescription'),
                       color: JalRakshakTheme.warningOrange,
                     ),
 
                   if (phAbnormal)
                     _buildHealthRiskItem(
                       icon: Icons.science_outlined,
-                      title: 'Imbalanced pH',
-                      description:
-                          'Water with an unusual pH may cause irritation or other concerns.',
+                      title: _language.text('imbalancedPh'),
+                      description: _language.text('imbalancedPhDescription'),
                       color: JalRakshakTheme.warningOrange,
                     ),
 
                   if (critical)
                     _buildHealthRiskItem(
                       icon: Icons.warning_amber_rounded,
-                      title: 'Poor Overall Quality',
-                      description:
-                          'The overall water quality score is low and needs attention.',
+                      title: _language.text('poorOverallQuality'),
+                      description: _language.text(
+                        'poorOverallQualityDescription',
+                      ),
                       color: JalRakshakTheme.dangerRed,
                     ),
 
@@ -1146,7 +1243,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           color: JalRakshakTheme.safeGreen.withOpacity(0.12),
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
                           Icon(
                             Icons.verified_rounded,
@@ -1158,7 +1255,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                           Expanded(
                             child: Text(
-                              'No major health risk detected from current readings.',
+                              _language.text('noMajorHealthRiskDetected'),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: JalRakshakTheme.safeGreen,
@@ -1386,9 +1483,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ),
                   const SizedBox(width: 14),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Precautions',
+                      _language.text('precautions'),
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
@@ -1411,12 +1508,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           if (_precautionsExpanded) ...[
             Divider(height: 1, color: Colors.grey.shade200),
 
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Follow these precautions to stay safe',
+                  _dashboardText('Follow these precautions to stay safe'),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -1432,27 +1529,35 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 children: [
                   _buildPrecautionItem(
                     icon: Icons.no_drinks_outlined,
-                    title: 'Do not drink untreated water.',
+                    title: _dashboardText('Do not drink untreated water.'),
                     color: JalRakshakTheme.dangerRed,
                   ),
                   _buildPrecautionItem(
                     icon: Icons.water_drop_outlined,
-                    title: 'Always store water in clean containers.',
+                    title: _dashboardText(
+                      'Always store water in clean containers.',
+                    ),
                     color: JalRakshakTheme.primaryBlue,
                   ),
                   _buildPrecautionItem(
                     icon: Icons.cleaning_services_outlined,
-                    title: 'Clean your storage tanks regularly.',
+                    title: _dashboardText(
+                      'Clean your storage tanks regularly.',
+                    ),
                     color: JalRakshakTheme.primaryBlue,
                   ),
                   _buildPrecautionItem(
                     icon: Icons.local_drink_outlined,
-                    title: 'Boil water if unsure about quality.',
+                    title: _dashboardText(
+                      'Boil water if unsure about quality.',
+                    ),
                     color: JalRakshakTheme.primaryBlue,
                   ),
                   _buildPrecautionItem(
                     icon: Icons.water_damage_outlined,
-                    title: 'Use proper filters and replace them on time.',
+                    title: _dashboardText(
+                      'Use proper filters and replace them on time.',
+                    ),
                     color: JalRakshakTheme.primaryBlue,
                     last: true,
                   ),
@@ -1575,9 +1680,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                   const SizedBox(width: 14),
 
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Treatment Suggestions',
+                      _language.text('treatmentSuggestions'),
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
@@ -1606,8 +1711,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Simple steps based on the current water condition',
+                  Text(
+                    _dashboardText(
+                      'Simple steps based on the current water condition',
+                    ),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -1621,10 +1728,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   if (highTds)
                     _buildTreatmentItem(
                       icon: Icons.water_drop_outlined,
-                      title: 'High TDS',
-                      subtitle: 'Use properly filtered water for drinking.',
-                      detail:
-                          'High TDS means the water contains a high amount of dissolved substances. Avoid drinking it directly and use properly filtered drinking water.',
+                      title: _language.text('highTds'),
+                      subtitle: _dashboardText(
+                        'Use properly filtered water for drinking.',
+                      ),
+                      detail: _dashboardText(
+                        'High TDS means the water contains a high amount of dissolved substances. Avoid drinking it directly and use properly filtered drinking water.',
+                      ),
                       color: JalRakshakTheme.primaryBlue,
                     ),
 
@@ -1632,11 +1742,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   if (highTurbidity)
                     _buildTreatmentItem(
                       icon: Icons.opacity_rounded,
-                      title: 'High Turbidity',
-                      subtitle:
-                          'Let it settle, filter it and boil before drinking.',
-                      detail:
-                          'If the water looks cloudy, keep it undisturbed so particles can settle. Filter the water and boil it before drinking.',
+                      title: _language.text('highTurbidity'),
+                      subtitle: _dashboardText(
+                        'Let it settle, filter it and boil before drinking.',
+                      ),
+                      detail: _dashboardText(
+                        'If the water looks cloudy, keep it undisturbed so particles can settle. Filter the water and boil it before drinking.',
+                      ),
                       color: JalRakshakTheme.primaryBlue,
                     ),
 
@@ -1644,10 +1756,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   if (phAbnormal)
                     _buildTreatmentItem(
                       icon: Icons.science_outlined,
-                      title: 'Unbalanced pH',
-                      subtitle: 'Avoid drinking this water directly.',
-                      detail:
-                          'The measured pH is outside the preferred range. Do not drink this water directly. Use another safe drinking-water source until the water condition is checked and corrected.',
+                      title: _dashboardText('Unbalanced pH'),
+                      subtitle: _dashboardText(
+                        'Avoid drinking this water directly.',
+                      ),
+                      detail: _dashboardText(
+                        'The measured pH is outside the preferred range. Do not drink this water directly. Use another safe drinking-water source until the water condition is checked and corrected.',
+                      ),
                       color: JalRakshakTheme.primaryBlue,
                     ),
 
@@ -1655,10 +1770,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   if (unsafe)
                     _buildTreatmentItem(
                       icon: Icons.warning_amber_rounded,
-                      title: 'Unsafe Water',
-                      subtitle: 'Do not drink this water directly.',
-                      detail:
-                          'The current readings indicate that the water may not be suitable for drinking. Avoid direct consumption and use a safe drinking-water source.',
+                      title: _dashboardText('Unsafe Water'),
+                      subtitle: _dashboardText(
+                        'Do not drink this water directly.',
+                      ),
+                      detail: _dashboardText(
+                        'The current readings indicate that the water may not be suitable for drinking. Avoid direct consumption and use a safe drinking-water source.',
+                      ),
                       color: JalRakshakTheme.dangerRed,
                     ),
 
@@ -1674,7 +1792,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           color: JalRakshakTheme.safeGreen.withOpacity(0.15),
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
                           Icon(
                             Icons.check_circle_outline_rounded,
@@ -1686,7 +1804,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                           Expanded(
                             child: Text(
-                              'Water is currently within the monitored safe range.',
+                              _dashboardText(
+                                'Water is currently within the monitored safe range.',
+                              ),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: JalRakshakTheme.safeGreen,
@@ -1708,7 +1828,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       color: JalRakshakTheme.primaryBlue.withOpacity(0.06),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Row(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(
@@ -1721,7 +1841,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                         Expanded(
                           child: Text(
-                            'These are basic safety suggestions. The app does not directly treat the water.',
+                            _dashboardText(
+                              'These are basic safety suggestions. The app does not directly treat the water.',
+                            ),
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey,

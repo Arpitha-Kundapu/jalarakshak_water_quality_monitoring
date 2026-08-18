@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/language_provider.dart';
 import 'main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -10,11 +12,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController =
-      TextEditingController();
+  final TextEditingController emailController = TextEditingController();
 
-  final TextEditingController passwordController =
-      TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   bool obscurePassword = true;
 
@@ -28,22 +28,20 @@ class _LoginScreenState extends State<LoginScreen> {
   void login() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) => const MainScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const MainScreen()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
 
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 24,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
 
           child: Column(
             children: [
@@ -71,10 +69,10 @@ class _LoginScreenState extends State<LoginScreen> {
               // ------------------------------------------------
               // TITLE
               // ------------------------------------------------
-              const Text(
-                'Welcome to JalRakshak',
+              Text(
+                languageProvider.text('welcome'),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -83,13 +81,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 8),
 
-              const Text(
-                'Login to monitor your water quality',
+              // ------------------------------------------------
+              // SUBTITLE
+              // ------------------------------------------------
+              Text(
+                languageProvider.text('loginSubtitle'),
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
+                style: const TextStyle(color: Colors.grey, fontSize: 14),
               ),
 
               const SizedBox(height: 40),
@@ -101,12 +99,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Enter your email',
+                  labelText: languageProvider.text('email'),
+                  hintText: languageProvider.text('enterEmail'),
 
-                  prefixIcon: const Icon(
-                    Icons.email_outlined,
-                  ),
+                  prefixIcon: const Icon(Icons.email_outlined),
 
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -114,9 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade300,
-                    ),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
                   ),
 
                   focusedBorder: OutlineInputBorder(
@@ -139,12 +133,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: obscurePassword,
 
                 decoration: InputDecoration(
-                  labelText: 'Password',
-                  hintText: 'Enter your password',
+                  labelText: languageProvider.text('password'),
+                  hintText: languageProvider.text('enterPassword'),
 
-                  prefixIcon: const Icon(
-                    Icons.lock_outline,
-                  ),
+                  prefixIcon: const Icon(Icons.lock_outline),
 
                   suffixIcon: IconButton(
                     onPressed: () {
@@ -154,9 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
 
                     icon: Icon(
-                      obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
+                      obscurePassword ? Icons.visibility_off : Icons.visibility,
                     ),
                   ),
 
@@ -166,9 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade300,
-                    ),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
                   ),
 
                   focusedBorder: OutlineInputBorder(
@@ -194,11 +182,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     // can be added later.
                   },
 
-                  child: const Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      color: Color(0xFF1768E5),
-                    ),
+                  child: Text(
+                    languageProvider.text('forgotPassword'),
+                    style: const TextStyle(color: Color(0xFF1768E5)),
                   ),
                 ),
               ),
@@ -225,9 +211,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(
+                  child: Text(
+                    languageProvider.text('login'),
+                    style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
                     ),
@@ -243,11 +229,9 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    "Don't have an account?",
-                    style: TextStyle(
-                      color: Colors.grey,
-                    ),
+                  Text(
+                    languageProvider.text('noAccount'),
+                    style: const TextStyle(color: Colors.grey),
                   ),
 
                   TextButton(
@@ -256,9 +240,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       // can be added later.
                     },
 
-                    child: const Text(
-                      'Register',
-                      style: TextStyle(
+                    child: Text(
+                      languageProvider.text('register'),
+                      style: const TextStyle(
                         color: Color(0xFF1768E5),
                         fontWeight: FontWeight.bold,
                       ),
