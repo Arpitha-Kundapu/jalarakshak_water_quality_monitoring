@@ -43,14 +43,3 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-
-backend/node_modules/
-backend/.env
-
-ml_model/__pycache__/
-ml_model/*.pyc
-ml_model/venv/
-ml_model/.venv/
-
-frontend/.dart_tool/
-frontend/build/
