@@ -1,133 +1,239 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/entities/sensor_data.dart';
+import '../services/sensor_service.dart';
 
-// ============================================================================
-// DEMO SENSOR PROVIDER
-// ============================================================================
-//
-// This currently simulates ESP32 sensor readings.
-//
-// Later:
-// ESP32 → Backend → ML Model → Flutter
-//
-// For now:
-// Demo Sensor → Flutter
-//
-// The simulator generates SAFE, WARNING and UNSAFE conditions so that
-// all UI states can be tested before the backend and ML are implemented.
-// ============================================================================
-
-final liveSensorProvider = StreamProvider<SensorData>((ref) {
-  final random = Random();
-
-  return Stream.periodic(const Duration(seconds: 3), (_) {
-    // ================================================================
-    // RANDOMLY SELECT A WATER CONDITION
-    // ================================================================
-
-    final int condition = random.nextInt(5);
-
-    double ph;
-    double tds;
-    double turbidity;
-    double wqi;
-    String status;
-
-    // ================================================================
-    // CONDITION 0
-    // SAFE WATER
-    // ================================================================
-
-    if (condition == 0) {
-      ph = 6.8 + random.nextDouble() * 1.2;
-      tds = 180 + random.nextDouble() * 180;
-      turbidity = 0.5 + random.nextDouble() * 2.5;
-
-      wqi = 85 + random.nextDouble() * 12;
-
-      status = wqi >= 90 ? "SAFE (Excellent)" : "SAFE (Good)";
-    }
-    // ================================================================
-    // CONDITION 1
-    // SAFE / GOOD WATER
-    // ================================================================
-    else if (condition == 1) {
-      ph = 7.0 + random.nextDouble() * 1.0;
-      tds = 250 + random.nextDouble() * 180;
-      turbidity = 1.0 + random.nextDouble() * 2.5;
-
-      wqi = 80 + random.nextDouble() * 10;
-
-      status = "SAFE (Good)";
-    }
-    // ================================================================
-    // CONDITION 2
-    // HIGH TDS
-    // ================================================================
-    else if (condition == 2) {
-      ph = 6.8 + random.nextDouble() * 1.2;
-
-      // High TDS
-      tds = 550 + random.nextDouble() * 350;
-
-      turbidity = 1.0 + random.nextDouble() * 3.0;
-
-      wqi = 45 + random.nextDouble() * 20;
-
-      status = "UNSAFE (High TDS)";
-    }
-    // ================================================================
-    // CONDITION 3
-    // HIGH TURBIDITY
-    // ================================================================
-    else if (condition == 3) {
-      ph = 6.8 + random.nextDouble() * 1.2;
-
-      tds = 200 + random.nextDouble() * 250;
-
-      // High turbidity
-      turbidity = 6 + random.nextDouble() * 10;
-
-      wqi = 40 + random.nextDouble() * 25;
-
-      status = "UNSAFE (High Turbidity)";
-    }
-    // ================================================================
-    // CONDITION 4
-    // ABNORMAL pH + MULTIPLE RISKS
-    // ================================================================
-    else {
-      // Abnormal pH
-      if (random.nextBool()) {
-        ph = 5.0 + random.nextDouble() * 1.0;
-      } else {
-        ph = 9.0 + random.nextDouble() * 1.0;
-      }
-
-      // Also make TDS/turbidity somewhat high
-      tds = 550 + random.nextDouble() * 400;
-
-      turbidity = 6 + random.nextDouble() * 10;
-
-      wqi = 25 + random.nextDouble() * 25;
-
-      status = "UNSAFE (Multiple Risks)";
-    }
-
-    // ================================================================
-    // RETURN SENSOR DATA
-    // ================================================================
-
-    return SensorData(
-      wqi: wqi,
-      ph: ph,
-      tds: tds,
-      turbidity: turbidity,
-      status: status,
-    );
-  });
+final sensorServiceProvider = Provider<SensorService>((ref) {
+  return SensorService();
 });
+
+final liveSensorProvider = StreamProvider<SensorData>((ref) async* {
+  final sensorService = ref.read(sensorServiceProvider);
+
+  // ================================================================
+  // TEMPORARY SENSOR VALUES
+  // ================================================================
+  //
+  // For now:
+  //
+  // TDS + Turbidity
+  //       ↓
+  // Node.js Backend
+  //       ↓
+  // Python ML Model
+  //       ↓
+  // Classification
+  //
+  // Later:
+  //
+  // ESP32 → Node.js → ML → Flutter
+  //
+  // ================================================================
+
+  const double testTds = 250;
+  const double testTurbidity = 0.5;
+
+  // ------------------------------------------------
+  // TEMPORARY pH
+  // ------------------------------------------------
+  // Keep pH because it is part of the project/report.
+  // Later this value will come from the ESP32 pH sensor.
+  // ------------------------------------------------
+
+  const double testPh = 7.2;
+
+  while (true) {
+    try {
+      // ============================================================
+      // SEND DATA TO BACKEND
+      // ============================================================
+
+      final result = await sensorService.getWaterQuality(
+        tds: testTds,
+        turbidity: testTurbidity,
+      );
+
+      // ============================================================
+      // READ SENSOR DATA
+      // ============================================================
+
+      final Map<String, dynamic> sensorData =
+          result['sensor_data'] is Map
+              ? Map<String, dynamic>.from(
+                  result['sensor_data'],
+                )
+              : {};
+
+      // ============================================================
+      // READ ML CLASSIFICATION
+      // ============================================================
+
+      final String classification =
+          result['classification']?.toString() ?? 'Unknown';
+
+      // ============================================================
+      // READ ML PROBABILITIES
+      // ============================================================
+
+      final Map<String, dynamic> probabilities =
+          result['probabilities'] is Map
+              ? Map<String, dynamic>.from(
+                  result['probabilities'],
+                )
+              : {};
+
+      // ============================================================
+      // GET TDS
+      // ============================================================
+
+      final double tds =
+          _toDouble(
+            sensorData['tds'],
+            testTds,
+          );
+
+      // ============================================================
+      // GET TURBIDITY
+      // ============================================================
+
+      final double turbidity =
+          _toDouble(
+            sensorData['turbidity'],
+            testTurbidity,
+          );
+
+      // ============================================================
+      // CALCULATE DISPLAY WQI
+      // ============================================================
+      //
+      // IMPORTANT:
+      // This is a temporary display score.
+      //
+      // It is NOT the ML probability.
+      //
+      // Later we can implement the final WQI formula based on
+      // the parameters coming from ESP32.
+      //
+      // ============================================================
+
+      final double wqi =
+          _calculateTemporaryWqi(
+        tds: tds,
+        turbidity: turbidity,
+        ph: testPh,
+      );
+
+      // ============================================================
+      // SEND DATA TO DASHBOARD
+      // ============================================================
+
+      yield SensorData(
+        wqi: wqi,
+        ph: testPh,
+        tds: tds,
+        turbidity: turbidity,
+        status: classification,
+      );
+
+      // ============================================================
+      // DEBUG INFORMATION
+      // ============================================================
+
+      print('----------------------------------------');
+      print('JalRakshak ML Response');
+      print('TDS: $tds');
+      print('Turbidity: $turbidity');
+      print('pH: $testPh');
+      print('Classification: $classification');
+      print('Probabilities: $probabilities');
+      print('Temporary WQI: $wqi');
+      print('----------------------------------------');
+    } catch (e) {
+      // ============================================================
+      // BACKEND ERROR
+      // ============================================================
+
+      print(
+        'JalRakshak Backend Error: $e',
+      );
+
+      yield SensorData(
+        wqi: 0,
+        ph: testPh,
+        tds: testTds,
+        turbidity: testTurbidity,
+        status: 'Backend Error',
+      );
+    }
+
+    // ================================================================
+    // REFRESH EVERY 3 SECONDS
+    // ================================================================
+
+    await Future.delayed(
+      const Duration(seconds: 3),
+    );
+  }
+});
+
+// ====================================================================
+// SAFE DOUBLE CONVERSION
+// ====================================================================
+
+double _toDouble(
+  dynamic value,
+  double fallback,
+) {
+  if (value is num) {
+    return value.toDouble();
+  }
+
+  final double? parsed =
+      double.tryParse(
+    value?.toString() ?? '',
+  );
+
+  return parsed ?? fallback;
+}
+
+// ====================================================================
+// TEMPORARY WQI CALCULATION
+// ====================================================================
+//
+// This is only for the current integration/testing stage.
+//
+// It keeps the Dashboard's WQI card working while the actual
+// ESP32 sensor values and final WQI methodology are integrated.
+//
+// ====================================================================
+
+double _calculateTemporaryWqi({
+  required double tds,
+  required double turbidity,
+  required double ph,
+}) {
+  double score = 100;
+
+  // TDS contribution
+  if (tds > 500) {
+    score -= 25;
+  } else if (tds > 300) {
+    score -= 10;
+  }
+
+  // Turbidity contribution
+  if (turbidity > 5) {
+    score -= 25;
+  } else if (turbidity > 3) {
+    score -= 10;
+  }
+
+  // pH contribution
+  if (ph < 6.5 || ph > 8.5) {
+    score -= 25;
+  }
+
+  return score.clamp(0, 100).toDouble();
+}

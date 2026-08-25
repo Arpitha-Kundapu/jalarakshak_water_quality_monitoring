@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart' as language_provider;
+import 'package:provider/provider.dart';
 
-import '../../core/theme.dart';
-import '../providers/language_provider.dart';
+import '/core/theme.dart';
+import '/presentation/providers/language_provider.dart';
+import '/presentation/providers/theme_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -13,54 +14,102 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool notificationsEnabled = true;
-  bool darkMode = false;
 
   @override
   Widget build(BuildContext context) {
-    final language = language_provider.Provider.of<LanguageProvider>(context);
+    final language = Provider.of<LanguageProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
+    final bool isDark = themeProvider.themeMode == ThemeMode.dark;
+
+    final backgroundColor = isDark
+        ? const Color(0xFF101418)
+        : JalRakshakTheme.backgroundLight;
+
+    final cardColor = isDark
+        ? const Color(0xFF1A2027)
+        : Colors.white;
+
+    final textColor = isDark
+        ? Colors.white
+        : JalRakshakTheme.textDark;
+
+    final secondaryTextColor = isDark
+        ? Colors.grey.shade400
+        : Colors.grey;
 
     return Scaffold(
-      backgroundColor: JalRakshakTheme.backgroundLight,
+      backgroundColor: backgroundColor,
+
+      // ============================================================
+      // APP BAR
+      // ============================================================
 
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: backgroundColor,
         elevation: 0,
         centerTitle: false,
 
         title: Text(
           _text(language, 'profileSettings'),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: JalRakshakTheme.textDark,
+            color: textColor,
           ),
         ),
       ),
 
+      // ============================================================
+      // BODY
+      // ============================================================
+
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 5, 20, 25),
+          padding: const EdgeInsets.fromLTRB(
+            20,
+            5,
+            20,
+            25,
+          ),
 
           child: Column(
             children: [
-              // ====================================================
+
+              // ======================================================
               // PROFILE HEADER
-              // ====================================================
-              _buildProfileHeader(),
+              // ======================================================
+
+              _buildProfileHeader(
+                cardColor: cardColor,
+                textColor: textColor,
+                secondaryTextColor: secondaryTextColor,
+              ),
 
               const SizedBox(height: 20),
 
-              // ====================================================
+              // ======================================================
               // SETTINGS
-              // ====================================================
-              _buildSettingsCard(language),
+              // ======================================================
+
+              _buildSettingsCard(
+                language,
+                cardColor: cardColor,
+                textColor: textColor,
+                secondaryTextColor: secondaryTextColor,
+                isDark: isDark,
+              ),
 
               const SizedBox(height: 18),
 
-              // ====================================================
+              // ======================================================
               // LOGOUT
-              // ====================================================
-              _buildLogoutButton(language),
+              // ======================================================
+
+              _buildLogoutButton(
+                language,
+                cardColor: cardColor,
+              ),
             ],
           ),
         ),
@@ -72,11 +121,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // LANGUAGE TEXT
   // ================================================================
 
-  String _text(LanguageProvider language, String key) {
+  String _text(
+    LanguageProvider language,
+    String key,
+  ) {
     final Map<String, Map<String, String>> translations = {
+
       // ============================================================
       // ENGLISH
       // ============================================================
+
       'English': {
         'profileSettings': 'Profile & Settings',
         'userName': 'User Name',
@@ -96,7 +150,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'and AI prescriptive system designed to monitor '
             'water quality and provide intelligent treatment '
             'recommendations.',
-        'logoutConfirm': 'Are you sure you want to logout?',
+        'logoutConfirm':
+            'Are you sure you want to logout?',
         'cancel': 'Cancel',
         'loggedOut': 'Logged out successfully.',
       },
@@ -104,55 +159,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // ============================================================
       // KANNADA
       // ============================================================
+
       'ಕನ್ನಡ': {
-        'profileSettings': 'ಪ್ರೊಫೈಲ್ ಮತ್ತು ಸೆಟ್ಟಿಂಗ್‌ಗಳು',
-        'userName': 'ಬಳಕೆದಾರರ ಹೆಸರು',
-        'language': 'ಭಾಷೆ',
-        'notifications': 'ಅಧಿಸೂಚನೆಗಳು',
-        'theme': 'ಥೀಮ್',
-        'darkMode': 'ಡಾರ್ಕ್ ಮೋಡ್',
-        'lightMode': 'ಲೈಟ್ ಮೋಡ್',
-        'privacyPolicy': 'ಗೌಪ್ಯತಾ ನೀತಿ',
-        'aboutJalRakshak': 'JalRakshak ಬಗ್ಗೆ',
-        'logout': 'ಲಾಗ್‌ಔಟ್',
-        'selectLanguage': 'ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
-        'selectTheme': 'ಥೀಮ್ ಆಯ್ಕೆಮಾಡಿ',
-        'privacySoon': 'ಗೌಪ್ಯತಾ ನೀತಿ ಶೀಘ್ರದಲ್ಲೇ ಲಭ್ಯವಾಗಲಿದೆ.',
+        'profileSettings':
+            'ಪ್ರೊಫೈಲ್ ಮತ್ತು ಸೆಟ್ಟಿಂಗ್‌ಗಳು',
+        'userName':
+            'ಬಳಕೆದಾರರ ಹೆಸರು',
+        'language':
+            'ಭಾಷೆ',
+        'notifications':
+            'ಅಧಿಸೂಚನೆಗಳು',
+        'theme':
+            'ಥೀಮ್',
+        'darkMode':
+            'ಡಾರ್ಕ್ ಮೋಡ್',
+        'lightMode':
+            'ಲೈಟ್ ಮೋಡ್',
+        'privacyPolicy':
+            'ಗೌಪ್ಯತಾ ನೀತಿ',
+        'aboutJalRakshak':
+            'JalRakshak ಬಗ್ಗೆ',
+        'logout':
+            'ಲಾಗ್‌ಔಟ್',
+        'selectLanguage':
+            'ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+        'selectTheme':
+            'ಥೀಮ್ ಆಯ್ಕೆಮಾಡಿ',
+        'privacySoon':
+            'ಗೌಪ್ಯತಾ ನೀತಿ ಶೀಘ್ರದಲ್ಲೇ ಲಭ್ಯವಾಗಲಿದೆ.',
         'aboutText':
             'JalRakshak ನೀರಿನ ಗುಣಮಟ್ಟವನ್ನು ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಲು '
             'ಮತ್ತು ಬುದ್ಧಿವಂತ ಚಿಕಿತ್ಸಾ ಶಿಫಾರಸುಗಳನ್ನು ನೀಡಲು '
             'ವಿನ್ಯಾಸಗೊಳಿಸಲಾದ ಸ್ಮಾರ್ಟ್ ನೀರಿನ ಗುಣಮಟ್ಟ ಮೇಲ್ವಿಚಾರಣಾ '
             'ಮತ್ತು AI ಆಧಾರಿತ ವ್ಯವಸ್ಥೆಯಾಗಿದೆ.',
-        'logoutConfirm': 'ನೀವು ಲಾಗ್‌ಔಟ್ ಮಾಡಲು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?',
-        'cancel': 'ರದ್ದುಮಾಡಿ',
-        'loggedOut': 'ಯಶಸ್ವಿಯಾಗಿ ಲಾಗ್‌ಔಟ್ ಆಗಿದೆ.',
+        'logoutConfirm':
+            'ನೀವು ಲಾಗ್‌ಔಟ್ ಮಾಡಲು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?',
+        'cancel':
+            'ರದ್ದುಮಾಡಿ',
+        'loggedOut':
+            'ಯಶಸ್ವಿಯಾಗಿ ಲಾಗ್‌ಔಟ್ ಆಗಿದೆ.',
       },
 
       // ============================================================
       // HINDI
       // ============================================================
+
       'हिन्दी': {
-        'profileSettings': 'प्रोफ़ाइल और सेटिंग्स',
-        'userName': 'उपयोगकर्ता का नाम',
-        'language': 'भाषा',
-        'notifications': 'सूचनाएँ',
-        'theme': 'थीम',
-        'darkMode': 'डार्क मोड',
-        'lightMode': 'लाइट मोड',
-        'privacyPolicy': 'गोपनीयता नीति',
-        'aboutJalRakshak': 'JalRakshak के बारे में',
-        'logout': 'लॉगआउट',
-        'selectLanguage': 'भाषा चुनें',
-        'selectTheme': 'थीम चुनें',
-        'privacySoon': 'गोपनीयता नीति जल्द उपलब्ध होगी।',
+        'profileSettings':
+            'प्रोफ़ाइल और सेटिंग्स',
+        'userName':
+            'उपयोगकर्ता का नाम',
+        'language':
+            'भाषा',
+        'notifications':
+            'सूचनाएँ',
+        'theme':
+            'थीम',
+        'darkMode':
+            'डार्क मोड',
+        'lightMode':
+            'लाइट मोड',
+        'privacyPolicy':
+            'गोपनीयता नीति',
+        'aboutJalRakshak':
+            'JalRakshak के बारे में',
+        'logout':
+            'लॉगआउट',
+        'selectLanguage':
+            'भाषा चुनें',
+        'selectTheme':
+            'थीम चुनें',
+        'privacySoon':
+            'गोपनीयता नीति जल्द उपलब्ध होगी।',
         'aboutText':
             'JalRakshak एक स्मार्ट जल गुणवत्ता निगरानी '
             'और AI आधारित प्रणाली है जिसे पानी की गुणवत्ता '
             'की निगरानी करने और बुद्धिमान उपचार सुझाव '
             'देने के लिए बनाया गया है।',
-        'logoutConfirm': 'क्या आप वाकई लॉगआउट करना चाहते हैं?',
-        'cancel': 'रद्द करें',
-        'loggedOut': 'सफलतापूर्वक लॉगआउट हो गया।',
+        'logoutConfirm':
+            'क्या आप वाकई लॉगआउट करना चाहते हैं?',
+        'cancel':
+            'रद्द करें',
+        'loggedOut':
+            'सफलतापूर्वक लॉगआउट हो गया।',
       },
     };
 
@@ -163,14 +252,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // PROFILE HEADER
   // ================================================================
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeader({
+    required Color cardColor,
+    required Color textColor,
+    required Color secondaryTextColor,
+  }) {
     return Container(
       width: double.infinity,
 
       padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(18),
 
         boxShadow: [
@@ -184,9 +277,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       child: Row(
         children: [
-          // --------------------------------------------------------
+
+          // ========================================================
           // AVATAR
-          // --------------------------------------------------------
+          // ========================================================
+
           Container(
             width: 58,
             height: 58,
@@ -195,7 +290,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: const Color(0xFFEAF4FF),
               shape: BoxShape.circle,
 
-              border: Border.all(color: const Color(0xFFD8E9FF)),
+              border: Border.all(
+                color: const Color(0xFFD8E9FF),
+              ),
             ),
 
             child: const Icon(
@@ -207,30 +304,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           const SizedBox(width: 15),
 
-          // --------------------------------------------------------
+          // ========================================================
           // USER DETAILS
-          // --------------------------------------------------------
+          // ========================================================
+
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
 
-              children: const [
+              children: [
+
                 Text(
                   'User Name',
 
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: JalRakshakTheme.textDark,
+                    color: textColor,
                   ),
                 ),
 
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
 
                 Text(
                   'user@example.com',
 
-                  style: TextStyle(fontSize: 11, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: secondaryTextColor,
+                  ),
                 ),
               ],
             ),
@@ -244,12 +347,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // SETTINGS CARD
   // ================================================================
 
-  Widget _buildSettingsCard(LanguageProvider language) {
+  Widget _buildSettingsCard(
+    LanguageProvider language, {
+    required Color cardColor,
+    required Color textColor,
+    required Color secondaryTextColor,
+    required bool isDark,
+  }) {
     return Container(
       width: double.infinity,
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(18),
 
         boxShadow: [
@@ -263,100 +372,163 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       child: Column(
         children: [
-          // --------------------------------------------------------
+
+          // ========================================================
           // LANGUAGE
-          // --------------------------------------------------------
+          // ========================================================
+
           _buildSettingTile(
             icon: Icons.language,
 
-            title: _text(language, 'language'),
+            title: _text(
+              language,
+              'language',
+            ),
 
-            trailingText: language.language,
+            trailingText:
+                language.language,
+
+            textColor: textColor,
+            secondaryTextColor:
+                secondaryTextColor,
 
             onTap: () {
-              _showLanguageDialog(language);
+              _showLanguageDialog(
+                language,
+              );
             },
           ),
 
-          _buildDivider(),
+          _buildDivider(isDark),
 
-          // --------------------------------------------------------
+          // ========================================================
           // NOTIFICATIONS
-          // --------------------------------------------------------
+          // ========================================================
+
           _buildSettingTile(
             icon: Icons.notifications_none,
 
-            title: _text(language, 'notifications'),
+            title: _text(
+              language,
+              'notifications',
+            ),
 
             trailing: Switch(
               value: notificationsEnabled,
 
-              activeColor: JalRakshakTheme.primaryBlue,
+              activeColor:
+                  JalRakshakTheme.primaryBlue,
 
               onChanged: (value) {
                 setState(() {
-                  notificationsEnabled = value;
+                  notificationsEnabled =
+                      value;
                 });
               },
             ),
 
+            textColor: textColor,
+            secondaryTextColor:
+                secondaryTextColor,
+
             onTap: () {
               setState(() {
-                notificationsEnabled = !notificationsEnabled;
+                notificationsEnabled =
+                    !notificationsEnabled;
               });
             },
           ),
 
-          _buildDivider(),
+          _buildDivider(isDark),
 
-          // --------------------------------------------------------
+          // ========================================================
           // THEME
-          // --------------------------------------------------------
+          // ========================================================
+
           _buildSettingTile(
             icon: Icons.brightness_6_outlined,
 
-            title: _text(language, 'theme'),
+            title: _text(
+              language,
+              'theme',
+            ),
 
-            trailingText: darkMode
-                ? _text(language, 'darkMode')
-                : _text(language, 'lightMode'),
+            trailingText: isDark
+                ? _text(
+                    language,
+                    'darkMode',
+                  )
+                : _text(
+                    language,
+                    'lightMode',
+                  ),
+
+            textColor: textColor,
+            secondaryTextColor:
+                secondaryTextColor,
 
             onTap: () {
-              _showThemeDialog(language);
+              _showThemeDialog(
+                language,
+              );
             },
           ),
 
-          _buildDivider(),
+          _buildDivider(isDark),
 
-          // --------------------------------------------------------
+          // ========================================================
           // PRIVACY POLICY
-          // --------------------------------------------------------
+          // ========================================================
+
           _buildSettingTile(
             icon: Icons.privacy_tip_outlined,
 
-            title: _text(language, 'privacyPolicy'),
+            title: _text(
+              language,
+              'privacyPolicy',
+            ),
 
             showArrow: true,
 
+            textColor: textColor,
+            secondaryTextColor:
+                secondaryTextColor,
+
             onTap: () {
-              _showComingSoon(language, _text(language, 'privacyPolicy'));
+              _showComingSoon(
+                language,
+                _text(
+                  language,
+                  'privacyPolicy',
+                ),
+              );
             },
           ),
 
-          _buildDivider(),
+          _buildDivider(isDark),
 
-          // --------------------------------------------------------
-          // ABOUT JALRAKSHAK
-          // --------------------------------------------------------
+          // ========================================================
+          // ABOUT
+          // ========================================================
+
           _buildSettingTile(
             icon: Icons.info_outline,
 
-            title: _text(language, 'aboutJalRakshak'),
+            title: _text(
+              language,
+              'aboutJalRakshak',
+            ),
 
             showArrow: true,
 
+            textColor: textColor,
+            secondaryTextColor:
+                secondaryTextColor,
+
             onTap: () {
-              _showAboutDialog(language);
+              _showAboutDialog(
+                language,
+              );
             },
           ),
         ],
@@ -375,72 +547,95 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Widget? trailing,
     bool showArrow = true,
     required VoidCallback onTap,
+    required Color textColor,
+    required Color secondaryTextColor,
   }) {
     return InkWell(
       onTap: onTap,
 
-      borderRadius: BorderRadius.circular(18),
+      borderRadius:
+          BorderRadius.circular(18),
 
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 5,
+        ),
 
         child: SizedBox(
           height: 54,
 
           child: Row(
             children: [
-              // ----------------------------------------------------
+
+              // ====================================================
               // ICON
-              // ----------------------------------------------------
+              // ====================================================
+
               SizedBox(
                 width: 32,
 
-                child: Icon(icon, size: 18, color: Colors.grey.shade600),
+                child: Icon(
+                  icon,
+                  size: 18,
+                  color: secondaryTextColor,
+                ),
               ),
 
               const SizedBox(width: 8),
 
-              // ----------------------------------------------------
+              // ====================================================
               // TITLE
-              // ----------------------------------------------------
+              // ====================================================
+
               Expanded(
                 child: Text(
                   title,
 
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: JalRakshakTheme.textDark,
+                    color: textColor,
                   ),
                 ),
               ),
 
-              // ----------------------------------------------------
+              // ====================================================
               // TRAILING TEXT
-              // ----------------------------------------------------
+              // ====================================================
+
               if (trailingText != null)
                 Text(
                   trailingText,
 
-                  style: const TextStyle(fontSize: 10, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: secondaryTextColor,
+                  ),
                 ),
 
-              // ----------------------------------------------------
+              // ====================================================
               // TRAILING WIDGET
-              // ----------------------------------------------------
-              if (trailing != null) trailing,
+              // ====================================================
 
-              // ----------------------------------------------------
+              if (trailing != null)
+                trailing,
+
+              // ====================================================
               // ARROW
-              // ----------------------------------------------------
+              // ====================================================
+
               if (showArrow)
-                const Padding(
-                  padding: EdgeInsets.only(left: 5),
+                Padding(
+                  padding:
+                      const EdgeInsets.only(
+                    left: 5,
+                  ),
 
                   child: Icon(
                     Icons.chevron_right,
                     size: 17,
-                    color: Colors.grey,
+                    color: secondaryTextColor,
                   ),
                 ),
             ],
@@ -454,13 +649,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // DIVIDER
   // ================================================================
 
-  Widget _buildDivider() {
+  Widget _buildDivider(
+    bool isDark,
+  ) {
     return Divider(
       height: 1,
       thickness: 0.6,
       indent: 55,
       endIndent: 12,
-      color: Colors.grey.shade200,
+
+      color: isDark
+          ? Colors.grey.shade800
+          : Colors.grey.shade200,
     );
   }
 
@@ -468,27 +668,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // LOGOUT
   // ================================================================
 
-  Widget _buildLogoutButton(LanguageProvider language) {
+  Widget _buildLogoutButton(
+    LanguageProvider language, {
+    required Color cardColor,
+  }) {
     return Container(
       width: double.infinity,
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(14),
       ),
 
       child: InkWell(
         onTap: () {
-          _showLogoutDialog(language);
+          _showLogoutDialog(
+            language,
+          );
         },
 
-        borderRadius: BorderRadius.circular(14),
+        borderRadius:
+            BorderRadius.circular(14),
 
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 15,
+          ),
 
           child: Row(
             children: [
+
               const Icon(
                 Icons.logout,
                 size: 18,
@@ -498,7 +708,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(width: 10),
 
               Text(
-                _text(language, 'logout'),
+                _text(
+                  language,
+                  'logout',
+                ),
 
                 style: const TextStyle(
                   fontSize: 12,
@@ -517,23 +730,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // LANGUAGE DIALOG
   // ================================================================
 
-  void _showLanguageDialog(LanguageProvider language) {
+  void _showLanguageDialog(
+    LanguageProvider language,
+  ) {
     showDialog(
       context: context,
 
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(_text(language, 'selectLanguage')),
+          title: Text(
+            _text(
+              language,
+              'selectLanguage',
+            ),
+          ),
 
           content: Column(
             mainAxisSize: MainAxisSize.min,
 
             children: [
-              _languageOption(language, 'English'),
+              _languageOption(
+                language,
+                'English',
+                dialogContext,
+              ),
 
-              _languageOption(language, 'ಕನ್ನಡ'),
+              _languageOption(
+                language,
+                'ಕನ್ನಡ',
+                dialogContext,
+              ),
 
-              _languageOption(language, 'हिन्दी'),
+              _languageOption(
+                language,
+                'हिन्दी',
+                dialogContext,
+              ),
             ],
           ),
         );
@@ -541,23 +773,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _languageOption(LanguageProvider language, String selectedLanguage) {
-    return ListTile(
-      title: Text(selectedLanguage),
+  // ================================================================
+  // LANGUAGE OPTION
+  // ================================================================
 
-      trailing: language.language == selectedLanguage
-          ? const Icon(Icons.check, color: JalRakshakTheme.primaryBlue)
-          : null,
+  Widget _languageOption(
+    LanguageProvider language,
+    String selectedLanguage,
+    BuildContext dialogContext,
+  ) {
+    return ListTile(
+      title: Text(
+        selectedLanguage,
+      ),
+
+      trailing:
+          language.language ==
+                  selectedLanguage
+              ? const Icon(
+                  Icons.check,
+                  color:
+                      JalRakshakTheme
+                          .primaryBlue,
+                )
+              : null,
 
       onTap: () {
-        // ----------------------------------------------------------
-        // IMPORTANT:
-        // Update the GLOBAL language provider.
-        // ----------------------------------------------------------
+        language.setLanguage(
+          selectedLanguage,
+        );
 
-        language.setLanguage(selectedLanguage);
-
-        Navigator.pop(context);
+        Navigator.pop(
+          dialogContext,
+        );
       },
     );
   }
@@ -566,47 +814,97 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // THEME DIALOG
   // ================================================================
 
-  void _showThemeDialog(LanguageProvider language) {
+  void _showThemeDialog(
+    LanguageProvider language,
+  ) {
+    final themeProvider =
+        Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    );
+
     showDialog(
       context: context,
 
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(_text(language, 'selectTheme')),
+          title: Text(
+            _text(
+              language,
+              'selectTheme',
+            ),
+          ),
 
           content: Column(
             mainAxisSize: MainAxisSize.min,
 
             children: [
-              RadioListTile<bool>(
-                value: false,
 
-                groupValue: darkMode,
+              // ====================================================
+              // LIGHT MODE
+              // ====================================================
 
-                title: Text(_text(language, 'lightMode')),
+              RadioListTile<ThemeMode>(
+                value: ThemeMode.light,
 
-                onChanged: (value) {
-                  setState(() {
-                    darkMode = false;
-                  });
+                groupValue:
+                    themeProvider.themeMode,
 
-                  Navigator.pop(dialogContext);
+                title: Text(
+                  _text(
+                    language,
+                    'lightMode',
+                  ),
+                ),
+
+                onChanged:
+                    (ThemeMode? value) {
+                  if (value == null) {
+                    return;
+                  }
+
+                  themeProvider
+                      .setThemeMode(
+                    ThemeMode.light,
+                  );
+
+                  Navigator.pop(
+                    dialogContext,
+                  );
                 },
               ),
 
-              RadioListTile<bool>(
-                value: true,
+              // ====================================================
+              // DARK MODE
+              // ====================================================
 
-                groupValue: darkMode,
+              RadioListTile<ThemeMode>(
+                value: ThemeMode.dark,
 
-                title: Text(_text(language, 'darkMode')),
+                groupValue:
+                    themeProvider.themeMode,
 
-                onChanged: (value) {
-                  setState(() {
-                    darkMode = true;
-                  });
+                title: Text(
+                  _text(
+                    language,
+                    'darkMode',
+                  ),
+                ),
 
-                  Navigator.pop(dialogContext);
+                onChanged:
+                    (ThemeMode? value) {
+                  if (value == null) {
+                    return;
+                  }
+
+                  themeProvider
+                      .setThemeMode(
+                    ThemeMode.dark,
+                  );
+
+                  Navigator.pop(
+                    dialogContext,
+                  );
                 },
               ),
             ],
@@ -620,21 +918,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // ABOUT DIALOG
   // ================================================================
 
-  void _showAboutDialog(LanguageProvider language) {
+  void _showAboutDialog(
+    LanguageProvider language,
+  ) {
     showAboutDialog(
       context: context,
 
-      applicationName: 'JalRakshak',
+      applicationName:
+          'JalRakshak',
 
-      applicationVersion: '1.0.0',
+      applicationVersion:
+          '1.0.0',
 
-      applicationIcon: const Icon(
+      applicationIcon:
+          const Icon(
         Icons.water_drop,
-        color: JalRakshakTheme.primaryBlue,
+        color:
+            JalRakshakTheme
+                .primaryBlue,
         size: 40,
       ),
 
-      children: [Text(_text(language, 'aboutText'))],
+      children: [
+        Text(
+          _text(
+            language,
+            'aboutText',
+          ),
+        ),
+      ],
     );
   }
 
@@ -642,12 +954,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // COMING SOON
   // ================================================================
 
-  void _showComingSoon(LanguageProvider language, String title) {
-    ScaffoldMessenger.of(context).showSnackBar(
+  void _showComingSoon(
+    LanguageProvider language,
+    String title,
+  ) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(
       SnackBar(
-        content: Text('$title ${_text(language, 'privacySoon')}'),
+        content: Text(
+          '$title ${_text(language, 'privacySoon')}',
+        ),
 
-        behavior: SnackBarBehavior.floating,
+        behavior:
+            SnackBarBehavior.floating,
       ),
     );
   }
@@ -656,41 +976,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // LOGOUT DIALOG
   // ================================================================
 
-  void _showLogoutDialog(LanguageProvider language) {
+  void _showLogoutDialog(
+    LanguageProvider language,
+  ) {
     showDialog(
       context: context,
 
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(_text(language, 'logout')),
+          title: Text(
+            _text(
+              language,
+              'logout',
+            ),
+          ),
 
-          content: Text(_text(language, 'logoutConfirm')),
+          content: Text(
+            _text(
+              language,
+              'logoutConfirm',
+            ),
+          ),
 
           actions: [
+
+            // ======================================================
+            // CANCEL
+            // ======================================================
+
             TextButton(
               onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-
-              child: Text(_text(language, 'cancel')),
-            ),
-
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-
-                ScaffoldMessenger.of(this.context).showSnackBar(
-                  SnackBar(content: Text(_text(language, 'loggedOut'))),
+                Navigator.pop(
+                  dialogContext,
                 );
               },
 
-              style: ElevatedButton.styleFrom(
-                backgroundColor: JalRakshakTheme.dangerRed,
+              child: Text(
+                _text(
+                  language,
+                  'cancel',
+                ),
+              ),
+            ),
 
-                foregroundColor: Colors.white,
+            // ======================================================
+            // LOGOUT
+            // ======================================================
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(
+                  dialogContext,
+                );
+
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      _text(
+                        language,
+                        'loggedOut',
+                      ),
+                    ),
+                  ),
+                );
+              },
+
+              style:
+                  ElevatedButton.styleFrom(
+                backgroundColor:
+                    JalRakshakTheme
+                        .dangerRed,
+
+                foregroundColor:
+                    Colors.white,
               ),
 
-              child: Text(_text(language, 'logout')),
+              child: Text(
+                _text(
+                  language,
+                  'logout',
+                ),
+              ),
             ),
           ],
         );

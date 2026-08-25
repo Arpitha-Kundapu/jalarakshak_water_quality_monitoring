@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/language_provider.dart';
+import '/presentation/providers/language_provider.dart';
 
-import 'dashboard_screen.dart';
-import 'live_screen.dart';
-import 'history_screen.dart';
-import 'alerts_screen.dart';
-import 'profile_screen.dart';
+import '/presentation/screens/dashboard_screen.dart';
+import '/presentation/screens/live_screen.dart';
+import '/presentation/screens/history_screen.dart';
+import '/presentation/screens/alerts_screen.dart';
+import '/presentation/screens/profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

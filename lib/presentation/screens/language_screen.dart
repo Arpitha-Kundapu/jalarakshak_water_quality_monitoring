@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/language_provider.dart';
-import 'login_screen.dart';
+import '/presentation/providers/language_provider.dart';
+import '/presentation/screens/login_screen.dart';
 
 class LanguageScreen extends StatefulWidget {
   const LanguageScreen({super.key});
