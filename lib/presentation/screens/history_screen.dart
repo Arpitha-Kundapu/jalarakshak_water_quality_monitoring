@@ -4,6 +4,7 @@ import 'package:provider/provider.dart' as language_provider;
 
 import '../../core/theme.dart';
 import '../providers/language_provider.dart';
+import '../services/sensor_service.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -13,15 +14,52 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
+  // ================================================================
+  // VARIABLES
+  // ================================================================
+
   String selectedPeriod = 'Week';
 
-  final List<String> periods = ['Day', 'Week', 'Month', 'Year'];
+  final List<String> periods = [
+    'Day',
+    'Week',
+    'Month',
+    'Year',
+  ];
+
+  final SensorService sensorService = SensorService();
+
+  late Future<List<Map<String, dynamic>>> historyFuture;
+
+  // ================================================================
+  // INIT
+  // ================================================================
+
+  @override
+  void initState() {
+    super.initState();
+
+    historyFuture = sensorService.getHistory();
+  }
+
+  // ================================================================
+  // REFRESH HISTORY
+  // ================================================================
+
+  void _refreshHistory() {
+    setState(() {
+      historyFuture = sensorService.getHistory();
+    });
+  }
 
   // ================================================================
   // LANGUAGE
   // ================================================================
 
-  String _text(LanguageProvider language, String key) {
+  String _text(
+    LanguageProvider language,
+    String key,
+  ) {
     final Map<String, Map<String, String>> translations = {
       'English': {
         'historyTrends': 'History & Trends',
@@ -30,18 +68,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
         'month': 'Month',
         'year': 'Year',
         'waterQualityScore': 'Water Quality Score',
-        'mon': 'Mon',
-        'tue': 'Tue',
-        'wed': 'Wed',
-        'thu': 'Thu',
-        'fri': 'Fri',
-        'sat': 'Sat',
-        'sun': 'Sun',
         'averageScore': 'Average Score',
-        'trend': 'Trend',
-        'improving': 'Improving',
+        'readings': 'Readings',
+        'tds': 'TDS',
+        'turbidity': 'Turbidity',
+        'noData': 'No history data available',
+        'loading': 'Loading history...',
+        'error': 'Unable to load history',
+        'refresh': 'Refresh',
         'downloadReport': 'Download Report',
         'reportSoon': 'Report generation will be available soon.',
+        'latestReadings': 'Latest Readings',
+        'mgL': 'mg/L',
+        'ntu': 'NTU',
       },
 
       'ಕನ್ನಡ': {
@@ -51,18 +90,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
         'month': 'ತಿಂಗಳು',
         'year': 'ವರ್ಷ',
         'waterQualityScore': 'ನೀರಿನ ಗುಣಮಟ್ಟದ ಸ್ಕೋರ್',
-        'mon': 'ಸೋಮ',
-        'tue': 'ಮಂಗಳ',
-        'wed': 'ಬುಧ',
-        'thu': 'ಗುರು',
-        'fri': 'ಶುಕ್ರ',
-        'sat': 'ಶನಿ',
-        'sun': 'ಭಾನು',
         'averageScore': 'ಸರಾಸರಿ ಸ್ಕೋರ್',
-        'trend': 'ಪ್ರವೃತ್ತಿ',
-        'improving': 'ಸುಧಾರಿಸುತ್ತಿದೆ',
+        'readings': 'ಓದುಗಳು',
+        'tds': 'TDS',
+        'turbidity': 'ಮಬ್ಬುತನ',
+        'noData': 'ಇತಿಹಾಸದ ಡೇಟಾ ಲಭ್ಯವಿಲ್ಲ',
+        'loading': 'ಇತಿಹಾಸ ಲೋಡ್ ಆಗುತ್ತಿದೆ...',
+        'error': 'ಇತಿಹಾಸ ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ',
+        'refresh': 'ರಿಫ್ರೆಶ್',
         'downloadReport': 'ವರದಿಯನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ',
         'reportSoon': 'ವರದಿ ರಚಿಸುವ ಸೌಲಭ್ಯ ಶೀಘ್ರದಲ್ಲೇ ಲಭ್ಯವಾಗಲಿದೆ.',
+        'latestReadings': 'ಇತ್ತೀಚಿನ ಓದುಗಳು',
+        'mgL': 'mg/L',
+        'ntu': 'NTU',
       },
 
       'हिन्दी': {
@@ -72,25 +112,29 @@ class _HistoryScreenState extends State<HistoryScreen> {
         'month': 'महीना',
         'year': 'वर्ष',
         'waterQualityScore': 'पानी की गुणवत्ता का स्कोर',
-        'mon': 'सोम',
-        'tue': 'मंगल',
-        'wed': 'बुध',
-        'thu': 'गुरु',
-        'fri': 'शुक्र',
-        'sat': 'शनि',
-        'sun': 'रवि',
         'averageScore': 'औसत स्कोर',
-        'trend': 'रुझान',
-        'improving': 'सुधार हो रहा है',
+        'readings': 'रीडिंग',
+        'tds': 'TDS',
+        'turbidity': 'टर्बिडिटी',
+        'noData': 'इतिहास डेटा उपलब्ध नहीं है',
+        'loading': 'इतिहास लोड हो रहा है...',
+        'error': 'इतिहास लोड नहीं हो सका',
+        'refresh': 'रिफ्रेश',
         'downloadReport': 'रिपोर्ट डाउनलोड करें',
         'reportSoon': 'रिपोर्ट बनाने की सुविधा जल्द उपलब्ध होगी।',
+        'latestReadings': 'नवीनतम रीडिंग',
+        'mgL': 'mg/L',
+        'ntu': 'NTU',
       },
     };
 
     return translations[language.language]?[key] ?? key;
   }
 
-  String _periodText(LanguageProvider language, String period) {
+  String _periodText(
+    LanguageProvider language,
+    String period,
+  ) {
     switch (period) {
       case 'Day':
         return _text(language, 'day');
@@ -109,10 +153,52 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  String _dayText(LanguageProvider language, int index) {
-    final List<String> keys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  // ================================================================
+  // SAFE DOUBLE
+  // ================================================================
 
-    return _text(language, keys[index]);
+  double _toDouble(
+    dynamic value,
+  ) {
+    if (value is num) {
+      return value.toDouble();
+    }
+
+    return double.tryParse(
+          value?.toString() ?? '',
+        ) ??
+        0;
+  }
+
+  // ================================================================
+  // CALCULATE WQI
+  // ================================================================
+
+  double _calculateWqi({
+    required double tds,
+    required double turbidity,
+  }) {
+    double score = 100;
+
+    // TDS
+    if (tds > 1000) {
+      score -= 40;
+    } else if (tds > 500) {
+      score -= 25;
+    } else if (tds > 300) {
+      score -= 10;
+    }
+
+    // Turbidity
+    if (turbidity > 5) {
+      score -= 30;
+    } else if (turbidity > 3) {
+      score -= 15;
+    } else if (turbidity > 1) {
+      score -= 5;
+    }
+
+    return score.clamp(0, 100).toDouble();
   }
 
   // ================================================================
@@ -121,10 +207,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final language = language_provider.Provider.of<LanguageProvider>(context);
+    final language =
+        language_provider.Provider.of<LanguageProvider>(
+      context,
+    );
 
     return Scaffold(
-      backgroundColor: JalRakshakTheme.backgroundLight,
+      backgroundColor:
+          JalRakshakTheme.backgroundLight,
 
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -133,63 +223,216 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
         title: Text(
           _text(language, 'historyTrends'),
+
           style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
             color: JalRakshakTheme.textDark,
           ),
         ),
+
+        actions: [
+          IconButton(
+            onPressed: _refreshHistory,
+            icon: const Icon(
+              Icons.refresh_rounded,
+            ),
+          ),
+        ],
       ),
 
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: historyFuture,
 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          builder: (
+            context,
+            snapshot,
+          ) {
+            // ======================================================
+            // LOADING
+            // ======================================================
 
-            children: [
-              // =====================================================
-              // TIME PERIOD SELECTOR
-              // =====================================================
-              _buildPeriodSelector(language),
+            if (snapshot.connectionState ==
+                ConnectionState.waiting) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(),
 
-              const SizedBox(height: 14),
+                    const SizedBox(height: 12),
 
-              // =====================================================
-              // DATE RANGE
-              // =====================================================
-              const Text(
-                '12 May - 18 May 2024',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+                    Text(
+                      _text(
+                        language,
+                        'loading',
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            // ======================================================
+            // ERROR
+            // ======================================================
+
+            if (snapshot.hasError) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 50,
+                        color: Colors.redAccent,
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      Text(
+                        _text(
+                          language,
+                          'error',
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      ElevatedButton.icon(
+                        onPressed: _refreshHistory,
+
+                        icon: const Icon(
+                          Icons.refresh,
+                        ),
+
+                        label: Text(
+                          _text(
+                            language,
+                            'refresh',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            final history =
+                snapshot.data ?? [];
+
+            // ======================================================
+            // NO DATA
+            // ======================================================
+
+            if (history.isEmpty) {
+              return Center(
+                child: Text(
+                  _text(
+                    language,
+                    'noData',
+                  ),
+                ),
+              );
+            }
+
+            // ======================================================
+            // SELECT RECORDS
+            // ======================================================
+
+            final records =
+                _getRecordsForPeriod(
+              history,
+            );
+
+            // ======================================================
+            // BUILD SCREEN
+            // ======================================================
+
+            return RefreshIndicator(
+              onRefresh: () async {
+                _refreshHistory();
+                await historyFuture;
+              },
+
+              child: SingleChildScrollView(
+                physics:
+                    const AlwaysScrollableScrollPhysics(),
+
+                padding:
+                    const EdgeInsets.fromLTRB(
+                  20,
+                  4,
+                  20,
+                  24,
+                ),
+
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.center,
+
+                  children: [
+                    // =================================================
+                    // PERIOD SELECTOR
+                    // =================================================
+
+                    _buildPeriodSelector(
+                      language,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // =================================================
+                    // CHART
+                    // =================================================
+
+                    _buildChartCard(
+                      language,
+                      records,
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    // =================================================
+                    // SUMMARY
+                    // =================================================
+
+                    _buildSummary(
+                      language,
+                      records,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // =================================================
+                    // READINGS
+                    // =================================================
+
+                    _buildReadings(
+                      language,
+                      records,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // =================================================
+                    // DOWNLOAD
+                    // =================================================
+
+                    _buildDownloadButton(
+                      language,
+                    ),
+                  ],
                 ),
               ),
-
-              const SizedBox(height: 20),
-
-              // =====================================================
-              // CHART CARD
-              // =====================================================
-              _buildChartCard(language),
-
-              const SizedBox(height: 18),
-
-              // =====================================================
-              // SUMMARY
-              // =====================================================
-              _buildSummary(language),
-
-              const SizedBox(height: 20),
-
-              // =====================================================
-              // DOWNLOAD REPORT
-              // =====================================================
-              _buildDownloadButton(language),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -199,7 +442,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
   // PERIOD SELECTOR
   // ================================================================
 
-  Widget _buildPeriodSelector(LanguageProvider language) {
+  Widget _buildPeriodSelector(
+    LanguageProvider language,
+  ) {
     return Container(
       width: double.infinity,
 
@@ -207,89 +452,194 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
 
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius:
+            BorderRadius.circular(25),
+
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
       ),
 
       child: Row(
-        children: periods.map((period) {
-          final bool isSelected = selectedPeriod == period;
+        children: periods.map(
+          (period) {
+            final bool isSelected =
+                selectedPeriod == period;
 
-          return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  selectedPeriod = period;
-                });
-              },
+            return Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selectedPeriod = period;
+                  });
+                },
 
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+                child: AnimatedContainer(
+                  duration:
+                      const Duration(
+                    milliseconds: 200,
+                  ),
 
-                padding: const EdgeInsets.symmetric(vertical: 9),
+                  padding:
+                      const EdgeInsets.symmetric(
+                    vertical: 9,
+                  ),
 
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? JalRakshakTheme.primaryBlue
-                      : Colors.transparent,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? JalRakshakTheme.primaryBlue
+                        : Colors.transparent,
 
-                  borderRadius: BorderRadius.circular(22),
-                ),
+                    borderRadius:
+                        BorderRadius.circular(22),
+                  ),
 
-                child: Text(
-                  _periodText(language, period),
+                  child: Text(
+                    _periodText(
+                      language,
+                      period,
+                    ),
 
-                  textAlign: TextAlign.center,
+                    textAlign:
+                        TextAlign.center,
 
-                  style: TextStyle(
-                    fontSize: 11,
+                    style: TextStyle(
+                      fontSize: 11,
 
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
 
-                    color: isSelected ? Colors.white : Colors.grey.shade600,
+                      color: isSelected
+                          ? Colors.white
+                          : Colors.grey.shade600,
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          },
+        ).toList(),
       ),
     );
   }
 
   // ================================================================
-  // CHART CARD
+  // GET RECORDS FOR PERIOD
   // ================================================================
 
-  Widget _buildChartCard(LanguageProvider language) {
+  List<Map<String, dynamic>>
+      _getRecordsForPeriod(
+    List<Map<String, dynamic>> history,
+  ) {
+    int count;
+
+    switch (selectedPeriod) {
+      case 'Day':
+        count = 10;
+        break;
+
+      case 'Week':
+        count = 30;
+        break;
+
+      case 'Month':
+        count = 60;
+        break;
+
+      case 'Year':
+        count = 100;
+        break;
+
+      default:
+        count = 30;
+    }
+
+    return history.take(count).toList();
+  }
+
+  // ================================================================
+  // CHART
+  // ================================================================
+
+  Widget _buildChartCard(
+    LanguageProvider language,
+    List<Map<String, dynamic>> records,
+  ) {
+    // We show the latest 7 readings on the graph.
+    final chartRecords =
+        records.take(7).toList().reversed.toList();
+
+    final List<FlSpot> spots = [];
+
+    for (int i = 0;
+        i < chartRecords.length;
+        i++) {
+      final double tds =
+          _toDouble(
+        chartRecords[i]['tds_mg_L'],
+      );
+
+      final double turbidity =
+          _toDouble(
+        chartRecords[i]['turbidity_NTU'],
+      );
+
+      final double wqi =
+          _calculateWqi(
+        tds: tds,
+        turbidity: turbidity,
+      );
+
+      spots.add(
+        FlSpot(
+          i.toDouble(),
+          wqi,
+        ),
+      );
+    }
+
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
+      padding:
+          const EdgeInsets.fromLTRB(
+        16,
+        18,
+        16,
+        14,
+      ),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(18),
+        borderRadius:
+            BorderRadius.circular(18),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color:
+                Colors.black.withOpacity(0.04),
 
             blurRadius: 12,
 
-            offset: const Offset(0, 4),
+            offset:
+                const Offset(0, 4),
           ),
         ],
       ),
 
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
 
         children: [
           Text(
-            _text(language, 'waterQualityScore'),
+            _text(
+              language,
+              'waterQualityScore',
+            ),
 
             style: const TextStyle(
               fontSize: 13,
@@ -306,13 +656,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
             child: LineChart(
               LineChartData(
                 minX: 0,
-                maxX: 6,
+
+                maxX: chartRecords.length <= 1
+                    ? 1
+                    : chartRecords.length - 1.0,
+
                 minY: 0,
+
                 maxY: 100,
 
-                // --------------------------------------------------
-                // GRID
-                // --------------------------------------------------
                 gridData: FlGridData(
                   show: true,
 
@@ -320,41 +672,59 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                   horizontalInterval: 25,
 
-                  getDrawingHorizontalLine: (value) {
-                    return FlLine(color: Colors.grey.shade200, strokeWidth: 1);
+                  getDrawingHorizontalLine:
+                      (value) {
+                    return FlLine(
+                      color:
+                          Colors.grey.shade200,
+
+                      strokeWidth: 1,
+                    );
                   },
                 ),
 
-                // --------------------------------------------------
-                // BORDER
-                // --------------------------------------------------
-                borderData: FlBorderData(show: false),
+                borderData:
+                    FlBorderData(
+                  show: false,
+                ),
 
-                // --------------------------------------------------
-                // TITLES
-                // --------------------------------------------------
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                titlesData:
+                    FlTitlesData(
+                  topTitles:
+                      const AxisTitles(
+                    sideTitles:
+                        SideTitles(
+                      showTitles: false,
+                    ),
                   ),
 
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                  rightTitles:
+                      const AxisTitles(
+                    sideTitles:
+                        SideTitles(
+                      showTitles: false,
+                    ),
                   ),
 
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
+                  leftTitles:
+                      AxisTitles(
+                    sideTitles:
+                        SideTitles(
                       showTitles: true,
 
                       reservedSize: 28,
 
                       interval: 25,
 
-                      getTitlesWidget: (value, meta) {
+                      getTitlesWidget:
+                          (value, meta) {
                         return Text(
-                          value.toInt().toString(),
+                          value
+                              .toInt()
+                              .toString(),
 
-                          style: const TextStyle(
+                          style:
+                              const TextStyle(
                             fontSize: 8,
                             color: Colors.grey,
                           ),
@@ -363,31 +733,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                   ),
 
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
+                  bottomTitles:
+                      AxisTitles(
+                    sideTitles:
+                        SideTitles(
                       showTitles: true,
 
-                      reservedSize: 24,
+                      reservedSize: 20,
 
                       interval: 1,
 
-                      getTitlesWidget: (value, meta) {
-                        final index = value.toInt();
+                      getTitlesWidget:
+                          (value, meta) {
+                        return Text(
+                          '#${value.toInt() + 1}',
 
-                        if (index < 0 || index >= 7) {
-                          return const SizedBox.shrink();
-                        }
-
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 6),
-
-                          child: Text(
-                            _dayText(language, index),
-
-                            style: const TextStyle(
-                              fontSize: 8,
-                              color: Colors.grey,
-                            ),
+                          style:
+                              const TextStyle(
+                            fontSize: 8,
+                            color: Colors.grey,
                           ),
                         );
                       },
@@ -395,55 +759,52 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                 ),
 
-                // --------------------------------------------------
-                // LINE
-                // --------------------------------------------------
                 lineBarsData: [
                   LineChartBarData(
-                    spots: const [
-                      FlSpot(0, 60),
-                      FlSpot(1, 75),
-                      FlSpot(2, 70),
-                      FlSpot(3, 76),
-                      FlSpot(4, 72),
-                      FlSpot(5, 88),
-                      FlSpot(6, 84),
-                    ],
+                    spots: spots,
 
                     isCurved: true,
 
-                    curveSmoothness: 0.25,
+                    curveSmoothness:
+                        0.25,
 
-                    color: JalRakshakTheme.primaryBlue,
+                    color:
+                        JalRakshakTheme.primaryBlue,
 
                     barWidth: 2.5,
 
                     isStrokeCapRound: true,
 
-                    // ------------------------------------------------
-                    // POINTS
-                    // ------------------------------------------------
                     dotData: FlDotData(
                       show: true,
 
-                      getDotPainter: (spot, percent, bar, index) {
+                      getDotPainter:
+                          (
+                        spot,
+                        percent,
+                        bar,
+                        index,
+                      ) {
                         return FlDotCirclePainter(
                           radius: 2.5,
 
-                          color: JalRakshakTheme.primaryBlue,
+                          color:
+                              JalRakshakTheme.primaryBlue,
 
                           strokeWidth: 0,
                         );
                       },
                     ),
 
-                    // ------------------------------------------------
-                    // AREA BELOW GRAPH
-                    // ------------------------------------------------
-                    belowBarData: BarAreaData(
+                    belowBarData:
+                        BarAreaData(
                       show: true,
 
-                      color: JalRakshakTheme.primaryBlue.withOpacity(0.08),
+                      color:
+                          JalRakshakTheme.primaryBlue
+                              .withOpacity(
+                        0.08,
+                      ),
                     ),
                   ),
                 ],
@@ -459,80 +820,116 @@ class _HistoryScreenState extends State<HistoryScreen> {
   // SUMMARY
   // ================================================================
 
-  Widget _buildSummary(LanguageProvider language) {
+  Widget _buildSummary(
+    LanguageProvider language,
+    List<Map<String, dynamic>> records,
+  ) {
+    if (records.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    double total = 0;
+
+    for (final record in records) {
+      final double tds =
+          _toDouble(
+        record['tds_mg_L'],
+      );
+
+      final double turbidity =
+          _toDouble(
+        record['turbidity_NTU'],
+      );
+
+      total += _calculateWqi(
+        tds: tds,
+        turbidity: turbidity,
+      );
+    }
+
+    final double average =
+        total / records.length;
+
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      padding:
+          const EdgeInsets.symmetric(
+        horizontal: 4,
+        vertical: 4,
+      ),
 
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment:
+            MainAxisAlignment.spaceBetween,
 
         children: [
-          // --------------------------------------------------------
-          // AVERAGE SCORE
-          // --------------------------------------------------------
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
 
             children: [
               Text(
-                _text(language, 'averageScore'),
+                _text(
+                  language,
+                  'averageScore',
+                ),
 
-                style: const TextStyle(fontSize: 10, color: Colors.grey),
+                style:
+                    const TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey,
+                ),
               ),
 
               const SizedBox(height: 3),
 
-              const Text(
-                '84/100',
+              Text(
+                '${average.toStringAsFixed(0)}/100',
 
-                style: TextStyle(
+                style:
+                    const TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: JalRakshakTheme.textDark,
+                  fontWeight:
+                      FontWeight.bold,
+                  color:
+                      JalRakshakTheme.textDark,
                 ),
               ),
             ],
           ),
 
-          // --------------------------------------------------------
-          // TREND
-          // --------------------------------------------------------
           Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment:
+                CrossAxisAlignment.end,
 
             children: [
               Text(
-                _text(language, 'trend'),
+                _text(
+                  language,
+                  'readings',
+                ),
 
-                style: const TextStyle(fontSize: 10, color: Colors.grey),
+                style:
+                    const TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey,
+                ),
               ),
 
               const SizedBox(height: 3),
 
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              Text(
+                '${records.length}',
 
-                children: [
-                  const Icon(
-                    Icons.arrow_upward_rounded,
-                    size: 14,
-                    color: JalRakshakTheme.safeGreen,
-                  ),
-
-                  const SizedBox(width: 3),
-
-                  Text(
-                    _text(language, 'improving'),
-
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: JalRakshakTheme.safeGreen,
-                    ),
-                  ),
-                ],
+                style:
+                    const TextStyle(
+                  fontSize: 16,
+                  fontWeight:
+                      FontWeight.bold,
+                  color:
+                      JalRakshakTheme.textDark,
+                ),
               ),
             ],
           ),
@@ -542,56 +939,265 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   // ================================================================
-  // DOWNLOAD REPORT BUTTON
+  // READINGS LIST
   // ================================================================
 
-  Widget _buildDownloadButton(LanguageProvider language) {
+  Widget _buildReadings(
+    LanguageProvider language,
+    List<Map<String, dynamic>> records,
+  ) {
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+
+      children: [
+        Text(
+          _text(
+            language,
+            'latestReadings',
+          ),
+
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: JalRakshakTheme.textDark,
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
+        ...records.take(10).map(
+          (record) {
+            final double tds =
+                _toDouble(
+              record['tds_mg_L'],
+            );
+
+            final double turbidity =
+                _toDouble(
+              record['turbidity_NTU'],
+            );
+
+            final double wqi =
+                _calculateWqi(
+              tds: tds,
+              turbidity: turbidity,
+            );
+
+            return Container(
+              margin:
+                  const EdgeInsets.only(
+                bottom: 8,
+              ),
+
+              padding:
+                  const EdgeInsets.all(
+                14,
+              ),
+
+              decoration:
+                  BoxDecoration(
+                color: Colors.white,
+
+                borderRadius:
+                    BorderRadius.circular(
+                  14,
+                ),
+              ),
+
+              child: Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+
+                    decoration:
+                        BoxDecoration(
+                      color:
+                          JalRakshakTheme
+                              .primaryBlue
+                              .withOpacity(
+                        0.10,
+                      ),
+
+                      borderRadius:
+                          BorderRadius.circular(
+                        10,
+                      ),
+                    ),
+
+                    child: const Icon(
+                      Icons.water_drop_outlined,
+
+                      color:
+                          JalRakshakTheme
+                              .primaryBlue,
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
+
+                      children: [
+                        Text(
+                          '${_text(language, 'tds')}: ${tds.toStringAsFixed(1)} ${_text(language, 'mgL')}',
+                          style:
+                              const TextStyle(
+                            fontSize: 12,
+                            fontWeight:
+                                FontWeight.w600,
+                          ),
+                        ),
+
+                        const SizedBox(
+                          height: 4,
+                        ),
+
+                        Text(
+                          '${_text(language, 'turbidity')}: ${turbidity.toStringAsFixed(2)} ${_text(language, 'ntu')}',
+                          style:
+                              const TextStyle(
+                            fontSize: 11,
+                            color:
+                                Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.end,
+
+                    children: [
+                      const Text(
+                        'WQI',
+
+                        style:
+                            TextStyle(
+                          fontSize: 9,
+                          color:
+                              Colors.grey,
+                        ),
+                      ),
+
+                      Text(
+                        wqi
+                            .toStringAsFixed(
+                          0,
+                        ),
+
+                        style:
+                            const TextStyle(
+                          fontSize: 17,
+                          fontWeight:
+                              FontWeight.bold,
+                          color:
+                              JalRakshakTheme
+                                  .textDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  // ================================================================
+  // DOWNLOAD REPORT
+  // ================================================================
+
+  Widget _buildDownloadButton(
+    LanguageProvider language,
+  ) {
     return SizedBox(
       width: 170,
       height: 38,
 
       child: ElevatedButton.icon(
         onPressed: () {
-          _showReportMessage(language);
+          _showReportMessage(
+            language,
+          );
         },
 
-        icon: const Icon(Icons.download_rounded, size: 15, color: Colors.white),
+        icon: const Icon(
+          Icons.download_rounded,
+          size: 15,
+          color: Colors.white,
+        ),
 
         label: Text(
-          _text(language, 'downloadReport'),
+          _text(
+            language,
+            'downloadReport',
+          ),
 
-          style: const TextStyle(
+          style:
+              const TextStyle(
             fontSize: 11,
-            fontWeight: FontWeight.bold,
+            fontWeight:
+                FontWeight.bold,
             color: Colors.white,
           ),
         ),
 
-        style: ElevatedButton.styleFrom(
-          backgroundColor: JalRakshakTheme.primaryBlue,
+        style:
+            ElevatedButton.styleFrom(
+          backgroundColor:
+              JalRakshakTheme.primaryBlue,
 
-          foregroundColor: Colors.white,
+          foregroundColor:
+              Colors.white,
 
           elevation: 0,
 
-          padding: const EdgeInsets.symmetric(horizontal: 18),
+          padding:
+              const EdgeInsets.symmetric(
+            horizontal: 18,
+          ),
 
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape:
+              RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(
+              8,
+            ),
+          ),
         ),
       ),
     );
   }
 
   // ================================================================
-  // DOWNLOAD MESSAGE
+  // REPORT MESSAGE
   // ================================================================
 
-  void _showReportMessage(LanguageProvider language) {
-    ScaffoldMessenger.of(context).showSnackBar(
+  void _showReportMessage(
+    LanguageProvider language,
+  ) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
       SnackBar(
-        content: Text(_text(language, 'reportSoon')),
+        content: Text(
+          _text(
+            language,
+            'reportSoon',
+          ),
+        ),
 
-        behavior: SnackBarBehavior.floating,
+        behavior:
+            SnackBarBehavior.floating,
       ),
     );
   }

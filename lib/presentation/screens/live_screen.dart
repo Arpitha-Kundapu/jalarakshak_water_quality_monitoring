@@ -6,18 +6,79 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart' as language_provider;
 
 import '/core/theme.dart';
+import '/domain/entities/sensor_data.dart';
 import '/presentation/providers/sensor_provider.dart';
 import '/presentation/providers/language_provider.dart';
 
-class LiveScreen extends ConsumerWidget {
+class LiveScreen extends ConsumerStatefulWidget {
   const LiveScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LiveScreen> createState() => _LiveScreenState();
+}
+
+class _LiveScreenState extends ConsumerState<LiveScreen> {
+  // ============================================================
+  // REAL SENSOR HISTORY FOR LIVE GRAPHS
+  // ============================================================
+
+  final List<double> _phHistory = [];
+  final List<double> _tdsHistory = [];
+  final List<double> _turbidityHistory = [];
+
+  static const int maxPoints = 8;
+
+  // Prevent duplicate values from being added repeatedly.
+  int? _lastTds;
+  int? _lastTurbidity;
+
+  @override
+  Widget build(BuildContext context) {
     final sensorStream = ref.watch(liveSensorProvider);
 
     final language =
         language_provider.Provider.of<LanguageProvider>(context);
+
+    // ============================================================
+    // LISTEN FOR REAL SENSOR DATA
+    // ============================================================
+
+    ref.listen<AsyncValue<SensorData>>(
+      liveSensorProvider,
+      (previous, next) {
+        next.whenData((data) {
+          final int currentTds =
+              (data.tds * 100).round();
+
+          final int currentTurbidity =
+              (data.turbidity * 100).round();
+
+          // Only add a new graph point when the reading changes.
+          if (_lastTds != currentTds ||
+              _lastTurbidity != currentTurbidity) {
+            _lastTds = currentTds;
+            _lastTurbidity = currentTurbidity;
+
+            setState(() {
+              _addPoint(
+                _phHistory,
+                data.ph,
+              );
+
+              _addPoint(
+                _tdsHistory,
+                data.tds,
+              );
+
+              _addPoint(
+                _turbidityHistory,
+                data.turbidity,
+              );
+            });
+          }
+        });
+      },
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FC),
@@ -80,18 +141,41 @@ class LiveScreen extends ConsumerWidget {
 
         error: (error, stack) {
           return Center(
-            child: Text(
-              language.text('unableSensorData'),
-              style: const TextStyle(
-                color: JalRakshakTheme.dangerRed,
-                fontWeight: FontWeight.w600,
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.cloud_off_rounded,
+                  size: 45,
+                  color: JalRakshakTheme.dangerRed,
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  language.text('unableSensorData'),
+                  style: const TextStyle(
+                    color: JalRakshakTheme.dangerRed,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                const Text(
+                  'Check Firebase connection.',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ),
           );
         },
 
         // ----------------------------------------------------------
-        // DATA
+        // REAL DATA
         // ----------------------------------------------------------
 
         data: (data) {
@@ -109,7 +193,7 @@ class LiveScreen extends ConsumerWidget {
               children: [
 
                 // ==================================================
-                // LIVE STATUS BAR
+                // LIVE STATUS
                 // ==================================================
 
                 _buildLiveStatus(language),
@@ -117,7 +201,7 @@ class LiveScreen extends ConsumerWidget {
                 const SizedBox(height: 14),
 
                 // ==================================================
-                // pH CARD
+                // pH
                 // ==================================================
 
                 _buildSensorCard(
@@ -128,7 +212,10 @@ class LiveScreen extends ConsumerWidget {
                   maxY: 8.8,
                   graphMinLabel: '6.2',
                   graphMaxLabel: '8.8',
-                  spots: _phSpots(data.ph),
+                  spots: _historyToSpots(
+                    _phHistory,
+                    fallback: data.ph,
+                  ),
                   lineColor: const Color(0xFF2E7DD7),
                   statusColor: _getPhColor(data.ph),
                 ),
@@ -136,7 +223,7 @@ class LiveScreen extends ConsumerWidget {
                 const SizedBox(height: 14),
 
                 // ==================================================
-                // TDS CARD
+                // TDS
                 // ==================================================
 
                 _buildSensorCard(
@@ -144,10 +231,14 @@ class LiveScreen extends ConsumerWidget {
                   value: data.tds.toStringAsFixed(0),
                   unit: 'ppm',
                   minY: 0,
-                  maxY: 900,
+                  maxY: _getTdsMaxY(),
                   graphMinLabel: '0',
-                  graphMaxLabel: '900',
-                  spots: _tdsSpots(data.tds),
+                  graphMaxLabel:
+                      _formatGraphValue(_getTdsMaxY()),
+                  spots: _historyToSpots(
+                    _tdsHistory,
+                    fallback: data.tds,
+                  ),
                   lineColor: const Color(0xFF39A95A),
                   statusColor: _getTdsColor(data.tds),
                 ),
@@ -155,20 +246,29 @@ class LiveScreen extends ConsumerWidget {
                 const SizedBox(height: 14),
 
                 // ==================================================
-                // TURBIDITY CARD
+                // TURBIDITY
                 // ==================================================
 
                 _buildSensorCard(
                   title: language.text('turbidity'),
-                  value: data.turbidity.toStringAsFixed(1),
+                  value: data.turbidity.toStringAsFixed(2),
                   unit: 'NTU',
                   minY: 0,
-                  maxY: 12,
+                  maxY: _getTurbidityMaxY(),
                   graphMinLabel: '0',
-                  graphMaxLabel: '12',
-                  spots: _turbiditySpots(data.turbidity),
+                  graphMaxLabel:
+                      _formatGraphValue(
+                    _getTurbidityMaxY(),
+                  ),
+                  spots: _historyToSpots(
+                    _turbidityHistory,
+                    fallback: data.turbidity,
+                  ),
                   lineColor: const Color(0xFFFF8C00),
-                  statusColor: _getTurbidityColor(data.turbidity),
+                  statusColor:
+                      _getTurbidityColor(
+                    data.turbidity,
+                  ),
                 ),
 
                 const SizedBox(height: 14),
@@ -178,7 +278,9 @@ class LiveScreen extends ConsumerWidget {
                 // ==================================================
 
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment:
+                      MainAxisAlignment.center,
+
                   children: [
                     const Icon(
                       Icons.sync_rounded,
@@ -189,7 +291,9 @@ class LiveScreen extends ConsumerWidget {
                     const SizedBox(width: 6),
 
                     Text(
-                      language.text('updatingEvery3Seconds'),
+                      language.text(
+                        'updatingEvery3Seconds',
+                      ),
                       style: const TextStyle(
                         fontSize: 11,
                         color: Colors.grey,
@@ -205,11 +309,54 @@ class LiveScreen extends ConsumerWidget {
     );
   }
 
-  // ================================================================
-  // LIVE STATUS
-  // ================================================================
+  // ============================================================
+  // ADD REAL READING TO HISTORY
+  // ============================================================
 
-  Widget _buildLiveStatus(LanguageProvider language) {
+  void _addPoint(
+    List<double> history,
+    double value,
+  ) {
+    history.add(value);
+
+    if (history.length > maxPoints) {
+      history.removeAt(0);
+    }
+  }
+
+  // ============================================================
+  // CONVERT REAL HISTORY TO FLSPOTS
+  // ============================================================
+
+  List<FlSpot> _historyToSpots(
+    List<double> history, {
+    required double fallback,
+  }) {
+    final values = history.isEmpty
+        ? [fallback]
+        : List<double>.from(history);
+
+    final List<FlSpot> spots = [];
+
+    for (int i = 0; i < values.length; i++) {
+      spots.add(
+        FlSpot(
+          i.toDouble(),
+          values[i],
+        ),
+      );
+    }
+
+    return spots;
+  }
+
+  // ============================================================
+  // LIVE STATUS
+  // ============================================================
+
+  Widget _buildLiveStatus(
+    LanguageProvider language,
+  ) {
     return Container(
       width: double.infinity,
 
@@ -219,13 +366,12 @@ class LiveScreen extends ConsumerWidget {
       ),
 
       decoration: BoxDecoration(
-        // DEMO MODE COLOR
-        color: const Color(0xFFFFF8E8),
+        color: const Color(0xFFEAF7EE),
 
         borderRadius: BorderRadius.circular(15),
 
         border: Border.all(
-          color: const Color(0xFFFFD98A),
+          color: const Color(0xFFB9DFC3),
         ),
 
         boxShadow: [
@@ -240,40 +386,40 @@ class LiveScreen extends ConsumerWidget {
       child: Row(
         children: [
 
-          // =========================================================
-          // DEMO STATUS DOT
-          // =========================================================
+          // ========================================================
+          // LIVE DOT
+          // ========================================================
 
           Container(
             width: 8,
             height: 8,
 
             decoration: const BoxDecoration(
-              color: Color(0xFFFFA000),
+              color: Color(0xFF39A95A),
               shape: BoxShape.circle,
             ),
           ),
 
           const SizedBox(width: 8),
 
-          // =========================================================
-          // STATUS TEXT
-          // =========================================================
+          // ========================================================
+          // LIVE TEXT
+          // ========================================================
 
           const Text(
-            'Demo Sensor Data',
+            'Live Sensor Data',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF8A5A00),
+              color: Color(0xFF236B37),
             ),
           ),
 
           const Spacer(),
 
-          // =========================================================
-          // DEMO LABEL
-          // =========================================================
+          // ========================================================
+          // LIVE LABEL
+          // ========================================================
 
           Container(
             padding: const EdgeInsets.symmetric(
@@ -282,12 +428,12 @@ class LiveScreen extends ConsumerWidget {
             ),
 
             decoration: BoxDecoration(
-              color: const Color(0xFFFFA000),
+              color: const Color(0xFF39A95A),
               borderRadius: BorderRadius.circular(20),
             ),
 
             child: const Text(
-              'DEMO',
+              'LIVE',
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
@@ -300,9 +446,9 @@ class LiveScreen extends ConsumerWidget {
     );
   }
 
-  // ================================================================
+  // ============================================================
   // SENSOR CARD
-  // ================================================================
+  // ============================================================
 
   Widget _buildSensorCard({
     required String title,
@@ -345,34 +491,37 @@ class LiveScreen extends ConsumerWidget {
       ),
 
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
 
         children: [
 
           // ========================================================
-          // LEFT VALUE SECTION
+          // VALUE
           // ========================================================
 
           SizedBox(
             width: 82,
 
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
 
               children: [
-
                 Row(
                   children: [
-
                     Flexible(
                       child: Text(
                         title,
-                        overflow: TextOverflow.ellipsis,
-
+                        overflow:
+                            TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: JalRakshakTheme.textDark,
+                          fontWeight:
+                              FontWeight.w600,
+                          color:
+                              JalRakshakTheme
+                                  .textDark,
                         ),
                       ),
                     ),
@@ -380,7 +529,8 @@ class LiveScreen extends ConsumerWidget {
                     if (unit.isNotEmpty)
                       Text(
                         ' ($unit)',
-                        style: const TextStyle(
+                        style:
+                            const TextStyle(
                           fontSize: 11,
                           color: Colors.grey,
                         ),
@@ -395,8 +545,10 @@ class LiveScreen extends ConsumerWidget {
                   style: const TextStyle(
                     fontSize: 30,
                     height: 1,
-                    fontWeight: FontWeight.w600,
-                    color: JalRakshakTheme.textDark,
+                    fontWeight:
+                        FontWeight.w600,
+                    color:
+                        JalRakshakTheme.textDark,
                   ),
                 ),
 
@@ -406,7 +558,8 @@ class LiveScreen extends ConsumerWidget {
                   width: 7,
                   height: 7,
 
-                  decoration: BoxDecoration(
+                  decoration:
+                      BoxDecoration(
                     color: statusColor,
                     shape: BoxShape.circle,
                   ),
@@ -425,199 +578,241 @@ class LiveScreen extends ConsumerWidget {
             child: SizedBox(
               height: 118,
 
-              child: Column(
-                children: [
+              child: LineChart(
+                LineChartData(
+                  minX: 0,
 
-                  Expanded(
-                    child: LineChart(
-                      LineChartData(
-                        minX: 0,
-                        maxX: 7,
+                  maxX: max(
+                    1,
+                    maxPoints - 1,
+                  ).toDouble(),
 
-                        minY: minY,
-                        maxY: maxY,
+                  minY: minY,
+                  maxY: maxY,
 
-                        // ------------------------------------------
-                        // GRID
-                        // ------------------------------------------
+                  // ==================================================
+                  // GRID
+                  // ==================================================
 
-                        gridData: FlGridData(
-                          show: true,
+                  gridData: FlGridData(
+                    show: true,
 
-                          drawVerticalLine: false,
+                    drawVerticalLine: false,
 
-                          horizontalInterval:
-                              _getGridInterval(minY, maxY),
+                    horizontalInterval:
+                        _getGridInterval(
+                      minY,
+                      maxY,
+                    ),
 
-                          getDrawingHorizontalLine: (value) {
-                            return FlLine(
-                              color: const Color(0xFFE5E9EE),
-                              strokeWidth: 1,
-                              dashArray: const [4, 4],
-                            );
-                          },
+                    getDrawingHorizontalLine:
+                        (value) {
+                      return FlLine(
+                        color:
+                            const Color(
+                          0xFFE5E9EE,
                         ),
-
-                        // ------------------------------------------
-                        // BORDER
-                        // ------------------------------------------
-
-                        borderData:
-                            FlBorderData(show: false),
-
-                        // ------------------------------------------
-                        // TITLES
-                        // ------------------------------------------
-
-                        titlesData: FlTitlesData(
-                          topTitles: const AxisTitles(
-                            sideTitles:
-                                SideTitles(showTitles: false),
-                          ),
-
-                          rightTitles: const AxisTitles(
-                            sideTitles:
-                                SideTitles(showTitles: false),
-                          ),
-
-                          leftTitles: const AxisTitles(
-                            sideTitles:
-                                SideTitles(showTitles: false),
-                          ),
-
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-
-                              reservedSize: 18,
-
-                              interval: 7,
-
-                              getTitlesWidget:
-                                  (value, meta) {
-
-                                if (value == 0) {
-                                  return Text(
-                                    graphMinLabel,
-                                    style:
-                                        const TextStyle(
-                                      fontSize: 8,
-                                      color: Colors.grey,
-                                    ),
-                                  );
-                                }
-
-                                if (value == 7) {
-                                  return Text(
-                                    graphMaxLabel,
-                                    style:
-                                        const TextStyle(
-                                      fontSize: 8,
-                                      color: Colors.grey,
-                                    ),
-                                  );
-                                }
-
-                                return const SizedBox.shrink();
-                              },
-                            ),
-                          ),
-                        ),
-
-                        // ------------------------------------------
-                        // TOUCH
-                        // ------------------------------------------
-
-                        lineTouchData:
-                            const LineTouchData(
-                          enabled: false,
-                        ),
-
-                        // ------------------------------------------
-                        // CLIP
-                        // ------------------------------------------
-
-                        clipData:
-                            const FlClipData.all(),
-
-                        // ------------------------------------------
-                        // LINE
-                        // ------------------------------------------
-
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: spots,
-
-                            isCurved: true,
-
-                            curveSmoothness: 0.35,
-
-                            color: lineColor,
-
-                            barWidth: 2.4,
-
-                            isStrokeCapRound: true,
-
-                            // --------------------------------------
-                            // POINTS
-                            // --------------------------------------
-
-                            dotData: FlDotData(
-                              show: true,
-
-                              getDotPainter:
-                                  (
-                                spot,
-                                percent,
-                                bar,
-                                index,
-                              ) {
-                                final bool isLast =
-                                    index ==
-                                        spots.length - 1;
-
-                                return FlDotCirclePainter(
-                                  radius:
-                                      isLast ? 4.5 : 3,
-
-                                  color: isLast
-                                      ? Colors.white
-                                      : lineColor,
-
-                                  strokeWidth:
-                                      isLast ? 2.5 : 0,
-
-                                  strokeColor:
-                                      lineColor,
-                                );
-                              },
-                            ),
-
-                            // --------------------------------------
-                            // SHADED AREA
-                            // --------------------------------------
-
-                            belowBarData: BarAreaData(
-                              show: true,
-
-                              gradient: LinearGradient(
-                                begin:
-                                    Alignment.topCenter,
-
-                                end: Alignment.bottomCenter,
-
-                                colors: [
-                                  lineColor.withOpacity(0.16),
-                                  lineColor.withOpacity(0.025),
-                                ],
-                              ),
-                            ),
-                          ),
+                        strokeWidth: 1,
+                        dashArray: const [
+                          4,
+                          4,
                         ],
+                      );
+                    },
+                  ),
+
+                  // ==================================================
+                  // BORDER
+                  // ==================================================
+
+                  borderData:
+                      FlBorderData(
+                    show: false,
+                  ),
+
+                  // ==================================================
+                  // TITLES
+                  // ==================================================
+
+                  titlesData:
+                      FlTitlesData(
+                    topTitles:
+                        const AxisTitles(
+                      sideTitles:
+                          SideTitles(
+                        showTitles: false,
+                      ),
+                    ),
+
+                    rightTitles:
+                        const AxisTitles(
+                      sideTitles:
+                          SideTitles(
+                        showTitles: false,
+                      ),
+                    ),
+
+                    leftTitles:
+                        const AxisTitles(
+                      sideTitles:
+                          SideTitles(
+                        showTitles: false,
+                      ),
+                    ),
+
+                    bottomTitles:
+                        AxisTitles(
+                      sideTitles:
+                          SideTitles(
+                        showTitles: true,
+
+                        reservedSize: 18,
+
+                        interval:
+                            maxPoints - 1,
+
+                        getTitlesWidget:
+                            (value, meta) {
+                          if (value == 0) {
+                            return Text(
+                              graphMinLabel,
+                              style:
+                                  const TextStyle(
+                                fontSize: 8,
+                                color:
+                                    Colors.grey,
+                              ),
+                            );
+                          }
+
+                          if (value ==
+                              maxPoints - 1) {
+                            return Text(
+                              graphMaxLabel,
+                              style:
+                                  const TextStyle(
+                                fontSize: 8,
+                                color:
+                                    Colors.grey,
+                              ),
+                            );
+                          }
+
+                          return const SizedBox
+                              .shrink();
+                        },
                       ),
                     ),
                   ),
-                ],
+
+                  // ==================================================
+                  // TOUCH
+                  // ==================================================
+
+                  lineTouchData:
+                      const LineTouchData(
+                    enabled: false,
+                  ),
+
+                  // ==================================================
+                  // CLIP
+                  // ==================================================
+
+                  clipData:
+                      const FlClipData.all(),
+
+                  // ==================================================
+                  // LINE
+                  // ==================================================
+
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: spots,
+
+                      isCurved: true,
+
+                      curveSmoothness: 0.25,
+
+                      color: lineColor,
+
+                      barWidth: 2.4,
+
+                      isStrokeCapRound: true,
+
+                      // =================================================
+                      // DOTS
+                      // =================================================
+
+                      dotData: FlDotData(
+                        show: true,
+
+                        getDotPainter:
+                            (
+                          spot,
+                          percent,
+                          bar,
+                          index,
+                        ) {
+                          final bool
+                              isLast =
+                              index ==
+                                  spots.length -
+                                      1;
+
+                          return FlDotCirclePainter(
+                            radius:
+                                isLast
+                                    ? 4.5
+                                    : 3,
+
+                            color: isLast
+                                ? Colors.white
+                                : lineColor,
+
+                            strokeWidth:
+                                isLast
+                                    ? 2.5
+                                    : 0,
+
+                            strokeColor:
+                                lineColor,
+                          );
+                        },
+                      ),
+
+                      // =================================================
+                      // AREA
+                      // =================================================
+
+                      belowBarData:
+                          BarAreaData(
+                        show: true,
+
+                        gradient:
+                            LinearGradient(
+                          begin:
+                              Alignment
+                                  .topCenter,
+
+                          end:
+                              Alignment
+                                  .bottomCenter,
+
+                          colors: [
+                            lineColor
+                                .withOpacity(
+                              0.16,
+                            ),
+                            lineColor
+                                .withOpacity(
+                              0.025,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -626,15 +821,16 @@ class LiveScreen extends ConsumerWidget {
     );
   }
 
-  // ================================================================
+  // ============================================================
   // GRID INTERVAL
-  // ================================================================
+  // ============================================================
 
   double _getGridInterval(
     double minY,
     double maxY,
   ) {
-    final double range = maxY - minY;
+    final double range =
+        maxY - minY;
 
     if (range <= 4) {
       return 0.5;
@@ -644,283 +840,97 @@ class LiveScreen extends ConsumerWidget {
       return 2.5;
     }
 
+    if (range <= 100) {
+      return 25;
+    }
+
+    if (range <= 500) {
+      return 100;
+    }
+
     return 225;
   }
 
-  // ================================================================
-  // pH GRAPH
-  // ================================================================
+  // ============================================================
+  // TDS GRAPH MAXIMUM
+  // ============================================================
 
-  List<FlSpot> _phSpots(double current) {
-    final double safeCurrent =
-        current.clamp(6.2, 8.8).toDouble();
+  double _getTdsMaxY() {
+    if (_tdsHistory.isEmpty) {
+      return 900;
+    }
 
-    return [
-      FlSpot(
-        0,
-        _clamp(
-          safeCurrent - 0.38,
-          6.2,
-          8.8,
-        ),
-      ),
+    final double highest =
+        _tdsHistory.reduce(max);
 
-      FlSpot(
-        1,
-        _clamp(
-          safeCurrent - 0.12,
-          6.2,
-          8.8,
-        ),
-      ),
+    if (highest <= 900) {
+      return 900;
+    }
 
-      FlSpot(
-        2,
-        _clamp(
-          safeCurrent + 0.22,
-          6.2,
-          8.8,
-        ),
-      ),
-
-      FlSpot(
-        3,
-        _clamp(
-          safeCurrent - 0.08,
-          6.2,
-          8.8,
-        ),
-      ),
-
-      FlSpot(
-        4,
-        _clamp(
-          safeCurrent + 0.30,
-          6.2,
-          8.8,
-        ),
-      ),
-
-      FlSpot(
-        5,
-        _clamp(
-          safeCurrent + 0.08,
-          6.2,
-          8.8,
-        ),
-      ),
-
-      FlSpot(
-        6,
-        _clamp(
-          safeCurrent - 0.18,
-          6.2,
-          8.8,
-        ),
-      ),
-
-      FlSpot(
-        7,
-        safeCurrent,
-      ),
-    ];
+    return (highest * 1.2)
+        .ceilToDouble();
   }
 
-  // ================================================================
-  // TDS GRAPH
-  // ================================================================
+  // ============================================================
+  // TURBIDITY GRAPH MAXIMUM
+  // ============================================================
 
-  List<FlSpot> _tdsSpots(double current) {
-    final double safeCurrent =
-        current.clamp(50, 900).toDouble();
+  double _getTurbidityMaxY() {
+    if (_turbidityHistory.isEmpty) {
+      return 12;
+    }
 
-    return [
-      FlSpot(
-        0,
-        _clamp(
-          safeCurrent - 70,
-          50,
-          900,
-        ),
-      ),
+    final double highest =
+        _turbidityHistory.reduce(max);
 
-      FlSpot(
-        1,
-        _clamp(
-          safeCurrent - 25,
-          50,
-          900,
-        ),
-      ),
+    if (highest <= 12) {
+      return 12;
+    }
 
-      FlSpot(
-        2,
-        _clamp(
-          safeCurrent + 65,
-          50,
-          900,
-        ),
-      ),
-
-      FlSpot(
-        3,
-        _clamp(
-          safeCurrent - 45,
-          50,
-          900,
-        ),
-      ),
-
-      FlSpot(
-        4,
-        _clamp(
-          safeCurrent + 90,
-          50,
-          900,
-        ),
-      ),
-
-      FlSpot(
-        5,
-        _clamp(
-          safeCurrent + 35,
-          50,
-          900,
-        ),
-      ),
-
-      FlSpot(
-        6,
-        _clamp(
-          safeCurrent - 20,
-          50,
-          900,
-        ),
-      ),
-
-      FlSpot(
-        7,
-        safeCurrent,
-      ),
-    ];
+    return (highest * 1.2)
+        .ceilToDouble();
   }
 
-  // ================================================================
-  // TURBIDITY GRAPH
-  // ================================================================
+  // ============================================================
+  // GRAPH LABEL
+  // ============================================================
 
-  List<FlSpot> _turbiditySpots(
-    double current,
-  ) {
-    final double safeCurrent =
-        current.clamp(0.2, 12.0).toDouble();
-
-    return [
-      FlSpot(
-        0,
-        _clamp(
-          safeCurrent - 1.8,
-          0.2,
-          12.0,
-        ),
-      ),
-
-      FlSpot(
-        1,
-        _clamp(
-          safeCurrent - 0.6,
-          0.2,
-          12.0,
-        ),
-      ),
-
-      FlSpot(
-        2,
-        _clamp(
-          safeCurrent + 1.4,
-          0.2,
-          12.0,
-        ),
-      ),
-
-      FlSpot(
-        3,
-        _clamp(
-          safeCurrent - 1.0,
-          0.2,
-          12.0,
-        ),
-      ),
-
-      FlSpot(
-        4,
-        _clamp(
-          safeCurrent + 1.8,
-          0.2,
-          12.0,
-        ),
-      ),
-
-      FlSpot(
-        5,
-        _clamp(
-          safeCurrent + 0.5,
-          0.2,
-          12.0,
-        ),
-      ),
-
-      FlSpot(
-        6,
-        _clamp(
-          safeCurrent - 0.7,
-          0.2,
-          12.0,
-        ),
-      ),
-
-      FlSpot(
-        7,
-        safeCurrent,
-      ),
-    ];
-  }
-
-  // ================================================================
-  // CLAMP
-  // ================================================================
-
-  double _clamp(
+  String _formatGraphValue(
     double value,
-    double minimum,
-    double maximum,
   ) {
-    return max(
-      minimum,
-      min(
-        maximum,
-        value,
-      ),
-    );
+    if (value >= 1000) {
+      return value.toStringAsFixed(0);
+    }
+
+    if (value >= 100) {
+      return value.toStringAsFixed(0);
+    }
+
+    return value.toStringAsFixed(1);
   }
 
-  // ================================================================
+  // ============================================================
   // pH COLOR
-  // ================================================================
+  // ============================================================
 
-  Color _getPhColor(double value) {
-    if (value >= 6.5 && value <= 8.5) {
+  Color _getPhColor(
+    double value,
+  ) {
+    if (value >= 6.5 &&
+        value <= 8.5) {
       return JalRakshakTheme.safeGreen;
     }
 
     return JalRakshakTheme.warningOrange;
   }
 
-  // ================================================================
+  // ============================================================
   // TDS COLOR
-  // ================================================================
+  // ============================================================
 
-  Color _getTdsColor(double value) {
+  Color _getTdsColor(
+    double value,
+  ) {
     if (value <= 300) {
       return JalRakshakTheme.safeGreen;
     }
@@ -932,11 +942,13 @@ class LiveScreen extends ConsumerWidget {
     return JalRakshakTheme.dangerRed;
   }
 
-  // ================================================================
+  // ============================================================
   // TURBIDITY COLOR
-  // ================================================================
+  // ============================================================
 
-  Color _getTurbidityColor(double value) {
+  Color _getTurbidityColor(
+    double value,
+  ) {
     if (value <= 1) {
       return JalRakshakTheme.safeGreen;
     }

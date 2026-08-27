@@ -15,9 +15,7 @@ class DashboardScreen extends ConsumerStatefulWidget {
       _DashboardScreenState();
 }
 
-class _DashboardScreenState
-    extends ConsumerState<DashboardScreen> {
-
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   // ================================================================
   // EXPANSION STATES
   // ================================================================
@@ -35,20 +33,17 @@ class _DashboardScreenState
       language_provider.Provider.of<LanguageProvider>(context);
 
   // ================================================================
-  // DASHBOARD TEXT TRANSLATION
+  // DASHBOARD TRANSLATION
   // ================================================================
 
   String _dashboardText(String english) {
     switch (_language.language) {
-
       // ============================================================
       // KANNADA
       // ============================================================
 
       case 'ಕನ್ನಡ':
-
         const kannada = {
-
           'Follow these precautions to stay safe':
               'ಸುರಕ್ಷಿತವಾಗಿರಲು ಈ ಮುನ್ನೆಚ್ಚರಿಕೆಗಳನ್ನು ಅನುಸರಿಸಿ',
 
@@ -59,13 +54,22 @@ class _DashboardScreenState
               'ನೀರನ್ನು ಯಾವಾಗಲೂ ಸ್ವಚ್ಛವಾದ ಪಾತ್ರೆಗಳಲ್ಲಿ ಸಂಗ್ರಹಿಸಿ.',
 
           'Clean your storage tanks regularly.':
-              'ನೀರಿನ ಸಂಗ್ರಹ ಟ್ಯಾಂಕ್ಗಳನ್ನು ನಿಯಮಿತವಾಗಿ ಸ್ವಚ್ಛಗೊಳಿಸಿ.',
+              'ನೀರಿನ ಸಂಗ್ರಹ ಟ್ಯಾಂಕ್‌ಗಳನ್ನು ನಿಯಮಿತವಾಗಿ ಸ್ವಚ್ಛಗೊಳಿಸಿ.',
 
           'Boil water if unsure about quality.':
               'ನೀರಿನ ಗುಣಮಟ್ಟದ ಬಗ್ಗೆ ಅನುಮಾನವಿದ್ದರೆ ನೀರನ್ನು ಕುದಿಸಿ.',
 
           'Use proper filters and replace them on time.':
-              'ಸರಿಯಾದ ಫಿಲ್ಟರ್ಗಳನ್ನು ಬಳಸಿ ಮತ್ತು ಅವುಗಳನ್ನು ಸಮಯಕ್ಕೆ ಬದಲಾಯಿಸಿ.',
+              'ಸರಿಯಾದ ಫಿಲ್ಟರ್‌ಗಳನ್ನು ಬಳಸಿ ಮತ್ತು ಅವುಗಳನ್ನು ಸಮಯಕ್ಕೆ ಬದಲಾಯಿಸಿ.',
+
+          'Use this water for washing/cleaning as recommended by the ML model.':
+              'ML ಮಾದರಿಯ ಶಿಫಾರಸಿನಂತೆ ಈ ನೀರನ್ನು ತೊಳೆಯಲು/ಸ್ವಚ್ಛಗೊಳಿಸಲು ಬಳಸಿ.',
+
+          'Prefer this water for irrigation/garden use rather than direct drinking.':
+              'ನೇರವಾಗಿ ಕುಡಿಯುವುದಕ್ಕಿಂತ ಈ ನೀರನ್ನು ನೀರಾವರಿ/ತೋಟದ ಬಳಕೆಗೆ ಆದ್ಯತೆ ನೀಡಿ.',
+
+          'Avoid using this water for drinking until it is treated and verified.':
+              'ಈ ನೀರನ್ನು ಸಂಸ್ಕರಿಸಿ ಪರಿಶೀಲಿಸುವವರೆಗೆ ಕುಡಿಯಲು ಬಳಸುವುದನ್ನು ತಪ್ಪಿಸಿ.',
 
           'Simple steps based on the current water condition':
               'ಪ್ರಸ್ತುತ ನೀರಿನ ಸ್ಥಿತಿಗೆ ಅನುಗುಣವಾದ ಸರಳ ಕ್ರಮಗಳು',
@@ -114,9 +118,7 @@ class _DashboardScreenState
       // ============================================================
 
       case 'हिन्दी':
-
         const hindi = {
-
           'Follow these precautions to stay safe':
               'सुरक्षित रहने के लिए इन सावधानियों का पालन करें',
 
@@ -134,6 +136,15 @@ class _DashboardScreenState
 
           'Use proper filters and replace them on time.':
               'उचित फिल्टर का उपयोग करें और उन्हें समय पर बदलें।',
+
+          'Use this water for washing/cleaning as recommended by the ML model.':
+              'ML मॉडल की सिफारिश के अनुसार इस पानी का उपयोग धोने/सफाई के लिए करें।',
+
+          'Prefer this water for irrigation/garden use rather than direct drinking.':
+              'इस पानी को सीधे पीने के बजाय सिंचाई/बगीचे के उपयोग के लिए प्राथमिकता दें।',
+
+          'Avoid using this water for drinking until it is treated and verified.':
+              'इस पानी को उपचारित और सत्यापित किए जाने तक पीने के लिए उपयोग करने से बचें।',
 
           'Simple steps based on the current water condition':
               'वर्तमान पानी की स्थिति के अनुसार सरल उपाय',
@@ -188,13 +199,10 @@ class _DashboardScreenState
 
   @override
   Widget build(BuildContext context) {
-
-    final sensorStream =
-        ref.watch(liveSensorProvider);
+    final sensorStream = ref.watch(liveSensorProvider);
 
     return Scaffold(
-      backgroundColor:
-          JalRakshakTheme.backgroundLight,
+      backgroundColor: JalRakshakTheme.backgroundLight,
 
       // ============================================================
       // APP BAR
@@ -209,52 +217,35 @@ class _DashboardScreenState
         title: Center(
           child: Text(
             _language.text('liveWaterStatus'),
-
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color:
-                  JalRakshakTheme.textDark,
+              color: JalRakshakTheme.textDark,
             ),
           ),
         ),
 
         actions: [
-
           Padding(
-            padding:
-                const EdgeInsets.only(
-              right: 18,
-            ),
-
+            padding: const EdgeInsets.only(right: 18),
             child: Container(
               width: 44,
               height: 44,
-
-              decoration:
-                  BoxDecoration(
+              decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
-
                 boxShadow: [
                   BoxShadow(
-                    color:
-                        Colors.black.withOpacity(
-                      0.05,
-                    ),
+                    color: Colors.black.withOpacity(0.05),
                     blurRadius: 8,
                   ),
                 ],
               ),
-
               child: IconButton(
                 onPressed: () {},
-
                 icon: const Icon(
-                  Icons
-                      .notifications_none_rounded,
-                  color:
-                      JalRakshakTheme.textDark,
+                  Icons.notifications_none_rounded,
+                  color: JalRakshakTheme.textDark,
                 ),
               ),
             ),
@@ -267,18 +258,14 @@ class _DashboardScreenState
       // ============================================================
 
       body: sensorStream.when(
-
         // ----------------------------------------------------------
         // LOADING
         // ----------------------------------------------------------
 
         loading: () {
-
           return const Center(
-            child:
-                CircularProgressIndicator(
-              color:
-                  JalRakshakTheme.primaryBlue,
+            child: CircularProgressIndicator(
+              color: JalRakshakTheme.primaryBlue,
             ),
           );
         },
@@ -288,53 +275,30 @@ class _DashboardScreenState
         // ----------------------------------------------------------
 
         error: (error, stack) {
-
           return Center(
             child: Padding(
-              padding:
-                  const EdgeInsets.all(24),
-
+              padding: const EdgeInsets.all(24),
               child: Column(
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
-
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
                   const Icon(
                     Icons.cloud_off_rounded,
                     size: 55,
                     color: Colors.grey,
                   ),
-
-                  const SizedBox(
-                    height: 15,
-                  ),
-
+                  const SizedBox(height: 15),
                   Text(
-                    _language.text(
-                      'unableSensorData',
-                    ),
-
-                    style:
-                        const TextStyle(
+                    _language.text('unableSensorData'),
+                    style: const TextStyle(
                       fontSize: 17,
-                      fontWeight:
-                          FontWeight.bold,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-
-                  const SizedBox(
-                    height: 8,
-                  ),
-
+                  const SizedBox(height: 8),
                   Text(
                     '$error',
-
-                    textAlign:
-                        TextAlign.center,
-
-                    style:
-                        const TextStyle(
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
                       color: Colors.grey,
                       fontSize: 12,
                     ),
@@ -350,24 +314,17 @@ class _DashboardScreenState
         // ----------------------------------------------------------
 
         data: (data) {
-
           return RefreshIndicator(
-            color:
-                JalRakshakTheme.primaryBlue,
+            color: JalRakshakTheme.primaryBlue,
 
             onRefresh: () async {
-              ref.invalidate(
-                liveSensorProvider,
-              );
+              ref.invalidate(liveSensorProvider);
             },
 
-            child:
-                SingleChildScrollView(
-              physics:
-                  const AlwaysScrollableScrollPhysics(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
 
-              padding:
-                  const EdgeInsets.fromLTRB(
+              padding: const EdgeInsets.fromLTRB(
                 20,
                 5,
                 20,
@@ -375,23 +332,18 @@ class _DashboardScreenState
               ),
 
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // =================================================
                   // LIVE STATUS
                   // =================================================
 
                   _buildLiveStatus(),
 
-                  const SizedBox(
-                    height: 18,
-                  ),
+                  const SizedBox(height: 18),
 
                   // =================================================
-                  // WATER QUALITY SCORE
+                  // WQI
                   // =================================================
 
                   _buildWqiCard(
@@ -399,32 +351,22 @@ class _DashboardScreenState
                     data.status,
                   ),
 
-                  const SizedBox(
-                    height: 22,
-                  ),
+                  const SizedBox(height: 22),
 
                   // =================================================
-                  // WATER PARAMETERS
+                  // PARAMETERS
                   // =================================================
 
                   Text(
-                    _language.text(
-                      'waterParameters',
-                    ),
-
-                    style: TextStyle(
+                    _language.text('waterParameters'),
+                    style: const TextStyle(
                       fontSize: 18,
-                      fontWeight:
-                          FontWeight.bold,
-                      color:
-                          JalRakshakTheme
-                              .textDark,
+                      fontWeight: FontWeight.bold,
+                      color: JalRakshakTheme.textDark,
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+                  const SizedBox(height: 12),
 
                   _buildSensorGrid(
                     data.ph,
@@ -432,55 +374,39 @@ class _DashboardScreenState
                     data.turbidity,
                   ),
 
-                  const SizedBox(
-                    height: 22,
-                  ),
+                  const SizedBox(height: 22),
 
                   // =================================================
                   // WATER USAGE CLASSIFICATION
                   // =================================================
 
-                  _buildUsageClassification(
-                    data,
-                  ),
+                  _buildUsageClassification(data),
 
-                  const SizedBox(
-                    height: 18,
-                  ),
+                  const SizedBox(height: 18),
 
                   // =================================================
                   // HEALTH RISKS
                   // =================================================
 
-                  _buildHealthRisks(
-                    data,
-                  ),
+                  _buildHealthRisks(data),
 
-                  const SizedBox(
-                    height: 18,
-                  ),
+                  const SizedBox(height: 18),
 
                   // =================================================
-                  // TREATMENT SUGGESTIONS
+                  // TREATMENT
                   // =================================================
 
-                  _buildTreatmentSuggestions(
-                    data,
-                  ),
+                  _buildTreatmentSuggestions(data),
 
-                  const SizedBox(
-                    height: 18,
-                  ),
+                  const SizedBox(height: 18),
 
                   // =================================================
                   // PRECAUTIONS
                   // =================================================
 
-                  _buildPrecautions(),
+                  _buildPrecautions(data),
 
-                  const SizedBox(
-                    height: 22,
-                  ),
+                  const SizedBox(height: 22),
 
                   // =================================================
                   // UPDATE MESSAGE
@@ -488,31 +414,18 @@ class _DashboardScreenState
 
                   Center(
                     child: Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment
-                              .center,
-
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-
                         const Icon(
                           Icons.sync_rounded,
                           size: 14,
                           color: Colors.grey,
                         ),
-
-                        const SizedBox(
-                          width: 5,
-                        ),
-
+                        const SizedBox(width: 5),
                         Text(
-                          _language.text(
-                            'sensorUpdates',
-                          ),
-
-                          style:
-                              const TextStyle(
-                            color:
-                                Colors.grey,
+                          _language.text('sensorUpdates'),
+                          style: const TextStyle(
+                            color: Colors.grey,
                             fontSize: 11,
                           ),
                         ),
@@ -533,96 +446,55 @@ class _DashboardScreenState
   // ================================================================
 
   Widget _buildLiveStatus() {
-
     return Container(
       width: double.infinity,
-
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 15,
         vertical: 12,
       ),
-
-      decoration:
-          BoxDecoration(
-        color:
-            JalRakshakTheme.safeGreen
-                .withOpacity(0.08),
-
-        borderRadius:
-            BorderRadius.circular(14),
-
+      decoration: BoxDecoration(
+        color: JalRakshakTheme.safeGreen.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color:
-              JalRakshakTheme.safeGreen
-                  .withOpacity(0.25),
+          color: JalRakshakTheme.safeGreen.withOpacity(0.25),
         ),
       ),
-
       child: Row(
         children: [
-
           Container(
             width: 10,
             height: 10,
-
-            decoration:
-                const BoxDecoration(
-              color:
-                  JalRakshakTheme.safeGreen,
-              shape:
-                  BoxShape.circle,
+            decoration: const BoxDecoration(
+              color: JalRakshakTheme.safeGreen,
+              shape: BoxShape.circle,
             ),
           ),
-
-          const SizedBox(
-            width: 10,
-          ),
-
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
-              _language.text(
-                'esp32Connected',
-              ),
-
-              style:
-                  const TextStyle(
-                fontWeight:
-                    FontWeight.w600,
+              _language.text('esp32Connected'),
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
                 fontSize: 13,
-                color:
-                    JalRakshakTheme.textDark,
+                color: JalRakshakTheme.textDark,
               ),
             ),
           ),
-
           Container(
-            padding:
-                const EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 10,
               vertical: 5,
             ),
-
-            decoration:
-                BoxDecoration(
-              color:
-                  JalRakshakTheme.safeGreen,
-
-              borderRadius:
-                  BorderRadius.circular(20),
+            decoration: BoxDecoration(
+              color: JalRakshakTheme.safeGreen,
+              borderRadius: BorderRadius.circular(20),
             ),
-
             child: Text(
-              _language.text(
-                'liveStatus',
-              ),
-
-              style:
-                  const TextStyle(
+              _language.text('liveStatus'),
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 10,
-                fontWeight:
-                    FontWeight.bold,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -639,13 +511,10 @@ class _DashboardScreenState
     double wqi,
     String status,
   ) {
+    final double safeWqi = wqi.clamp(0.0, 100.0);
 
     final String upperStatus =
         status.trim().toUpperCase();
-
-    // ==============================================================
-    // CLASSIFICATION
-    // ==============================================================
 
     final bool isDrinking =
         upperStatus == 'DRINKING' ||
@@ -654,166 +523,90 @@ class _DashboardScreenState
     final bool isUnsafe =
         upperStatus.contains('UNSAFE');
 
-    final bool isSafe =
-        isDrinking;
-
-    // ==============================================================
-    // COLOR
-    // ==============================================================
-
     final Color statusColor;
 
-    if (isSafe) {
-
-      statusColor =
-          JalRakshakTheme.safeGreen;
-
-    } else if (isUnsafe) {
-
-      statusColor =
-          JalRakshakTheme.dangerRed;
-
+    if (isUnsafe) {
+      statusColor = JalRakshakTheme.dangerRed;
+    } else if (isDrinking && safeWqi >= 80) {
+      statusColor = JalRakshakTheme.safeGreen;
+    } else if (safeWqi >= 70) {
+      statusColor = JalRakshakTheme.warningOrange;
     } else {
-
-      statusColor =
-          JalRakshakTheme.warningOrange;
+      statusColor = JalRakshakTheme.dangerRed;
     }
-
-    // ==============================================================
-    // ICON
-    // ==============================================================
 
     final IconData statusIcon;
 
-    if (isSafe) {
-
-      statusIcon =
-          Icons.check_circle_rounded;
-
-    } else if (isUnsafe) {
-
-      statusIcon =
-          Icons.cancel_rounded;
-
+    if (isUnsafe) {
+      statusIcon = Icons.cancel_rounded;
+    } else if (isDrinking && safeWqi >= 80) {
+      statusIcon = Icons.check_circle_rounded;
     } else {
-
-      statusIcon =
-          Icons.warning_rounded;
+      statusIcon = Icons.warning_rounded;
     }
-
-    // ==============================================================
-    // LABEL
-    // ==============================================================
 
     final String scoreLabel;
 
-    if (isSafe) {
-
-      scoreLabel =
-          _language.text('good');
-
-    } else if (isUnsafe) {
-
-      scoreLabel =
-          _language.text('unsafe');
-
+    if (isUnsafe || safeWqi < 60) {
+      scoreLabel = _language.text('unsafe');
+    } else if (safeWqi >= 80 && isDrinking) {
+      scoreLabel = _language.text('good');
     } else {
-
-      scoreLabel =
-          _language.text('check');
+      scoreLabel = _language.text('check');
     }
-
-    // ==============================================================
-    // CARD
-    // ==============================================================
 
     return Container(
       width: double.infinity,
-
-      padding:
-          const EdgeInsets.all(22),
-
-      decoration:
-          BoxDecoration(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
         color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(22),
-
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.05,
-            ),
-
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 15,
-
-            offset:
-                const Offset(0, 6),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
-
       child: Column(
         children: [
-
           // --------------------------------------------------------
           // TITLE
           // --------------------------------------------------------
 
           Text(
-            _language.text(
-              'waterQualityScore',
-            ),
-
-            style:
-                const TextStyle(
+            _language.text('waterQualityScore'),
+            style: const TextStyle(
               fontSize: 12,
               letterSpacing: 1.5,
-              fontWeight:
-                  FontWeight.bold,
+              fontWeight: FontWeight.bold,
               color: Colors.grey,
             ),
           ),
 
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
 
           // --------------------------------------------------------
           // SCORE + CIRCLE
           // --------------------------------------------------------
 
           Row(
-            mainAxisAlignment:
-                MainAxisAlignment
-                    .spaceEvenly,
-
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-
               Column(
                 children: [
-
                   Text(
-                    wqi.toStringAsFixed(0),
-
-                    style:
-                        const TextStyle(
+                    safeWqi.toStringAsFixed(0),
+                    style: const TextStyle(
                       fontSize: 52,
-                      fontWeight:
-                          FontWeight.bold,
-                      color:
-                          JalRakshakTheme
-                              .textDark,
+                      fontWeight: FontWeight.bold,
+                      color: JalRakshakTheme.textDark,
                     ),
                   ),
-
                   const Text(
                     '/100',
-
-                    style:
-                        TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       color: Colors.grey,
                     ),
@@ -821,79 +614,38 @@ class _DashboardScreenState
                 ],
               ),
 
-              // ----------------------------------------------------
-              // CIRCLE
-              // ----------------------------------------------------
-
               SizedBox(
                 height: 105,
                 width: 105,
-
                 child: Stack(
-                  alignment:
-                      Alignment.center,
-
+                  alignment: Alignment.center,
                   children: [
-
                     SizedBox(
                       height: 105,
                       width: 105,
-
-                      child:
-                          CircularProgressIndicator(
-                        value:
-                            (wqi / 100)
-                                .clamp(
-                          0.0,
-                          1.0,
-                        ),
-
+                      child: CircularProgressIndicator(
+                        value: safeWqi / 100,
                         strokeWidth: 11,
-
-                        backgroundColor:
-                            Colors.grey.shade200,
-
-                        color:
-                            statusColor,
-
-                        strokeCap:
-                            StrokeCap.round,
+                        backgroundColor: Colors.grey.shade200,
+                        color: statusColor,
+                        strokeCap: StrokeCap.round,
                       ),
                     ),
-
                     Column(
-                      mainAxisAlignment:
-                          MainAxisAlignment
-                              .center,
-
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-
                         Icon(
                           statusIcon,
-
-                          color:
-                              statusColor,
-
+                          color: statusColor,
                           size: 25,
                         ),
-
-                        const SizedBox(
-                          height: 3,
-                        ),
-
+                        const SizedBox(height: 3),
                         Text(
                           scoreLabel,
-
-                          style:
-                              TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
-
-                            fontWeight:
-                                FontWeight
-                                    .bold,
-
-                            color:
-                                statusColor,
+                            fontWeight: FontWeight.bold,
+                            color: statusColor,
                           ),
                         ),
                       ],
@@ -904,59 +656,36 @@ class _DashboardScreenState
             ],
           ),
 
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
 
           Divider(
             height: 1,
-            color:
-                Colors.grey.shade200,
+            color: Colors.grey.shade200,
           ),
 
-          const SizedBox(
-            height: 16,
-          ),
+          const SizedBox(height: 16),
 
           // --------------------------------------------------------
           // CLASSIFICATION
           // --------------------------------------------------------
 
           Row(
-            mainAxisAlignment:
-                MainAxisAlignment.center,
-
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
               Icon(
                 statusIcon,
-
                 size: 21,
-
-                color:
-                    statusColor,
+                color: statusColor,
               ),
-
-              const SizedBox(
-                width: 8,
-              ),
-
+              const SizedBox(width: 8),
               Flexible(
                 child: Text(
                   status,
-
-                  textAlign:
-                      TextAlign.center,
-
-                  style:
-                      TextStyle(
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
                     fontSize: 15,
-
-                    fontWeight:
-                        FontWeight.bold,
-
-                    color:
-                        statusColor,
+                    fontWeight: FontWeight.bold,
+                    color: statusColor,
                   ),
                 ),
               ),
@@ -976,121 +705,53 @@ class _DashboardScreenState
     double tds,
     double turbidity,
   ) {
-
     return Column(
       children: [
-
         Row(
           children: [
-
             Expanded(
-              child:
-                  _buildSensorCard(
-                title:
-                    _language.text(
-                  'phLevel',
-                ),
-
-                value:
-                    ph.toStringAsFixed(
-                  1,
-                ),
-
+              child: _buildSensorCard(
+                title: _language.text('phLevel'),
+                value: ph.toStringAsFixed(1),
                 unit: 'pH',
-
-                icon:
-                    Icons.science_outlined,
-
-                color:
-                    JalRakshakTheme
-                        .primaryBlue,
+                icon: Icons.science_outlined,
+                color: JalRakshakTheme.primaryBlue,
               ),
             ),
-
-            const SizedBox(
-              width: 12,
-            ),
-
+            const SizedBox(width: 12),
             Expanded(
-              child:
-                  _buildSensorCard(
+              child: _buildSensorCard(
                 title: 'TDS',
-
-                value:
-                    tds.toStringAsFixed(
-                  0,
-                ),
-
+                value: tds.toStringAsFixed(0),
                 unit: 'ppm',
-
-                icon:
-                    Icons.water_drop_outlined,
-
-                color:
-                    JalRakshakTheme
-                        .primaryBlue,
+                icon: Icons.water_drop_outlined,
+                color: JalRakshakTheme.primaryBlue,
               ),
             ),
           ],
         ),
 
-        const SizedBox(
-          height: 12,
-        ),
+        const SizedBox(height: 12),
 
         Row(
           children: [
-
             Expanded(
-              child:
-                  _buildSensorCard(
-                title:
-                    _language.text(
-                  'turbidity',
-                ),
-
-                value:
-                    turbidity
-                        .toStringAsFixed(
-                  1,
-                ),
-
+              child: _buildSensorCard(
+                title: _language.text('turbidity'),
+                value: turbidity.toStringAsFixed(1),
                 unit: 'NTU',
-
-                icon:
-                    Icons.opacity_outlined,
-
-                color:
-                    JalRakshakTheme
-                        .primaryBlue,
+                icon: Icons.opacity_outlined,
+                color: JalRakshakTheme.primaryBlue,
               ),
             ),
-
-            const SizedBox(
-              width: 12,
-            ),
-
+            const SizedBox(width: 12),
             Expanded(
-              child:
-                  _buildSensorCard(
-                title:
-                    _language.text(
-                  'monitoring',
-                ),
-
-                value:
-                    _language.text(
-                  'liveStatus',
-                ),
-
+              child: _buildSensorCard(
+                title: _language.text('monitoring'),
+                value: _language.text('liveStatus'),
                 unit: '',
-
-                icon:
-                    Icons.sensors_rounded,
-
-                color:
-                    JalRakshakTheme
-                        .safeGreen,
+                icon: Icons.sensors_rounded,
+                color: JalRakshakTheme.safeGreen,
               ),
             ),
           ],
@@ -1110,68 +771,38 @@ class _DashboardScreenState
     required IconData icon,
     required Color color,
   }) {
-
     return Container(
-      padding:
-          const EdgeInsets.all(16),
-
-      decoration:
-          BoxDecoration(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
         color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(17),
-
+        borderRadius: BorderRadius.circular(17),
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.04,
-            ),
-
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
-
-            offset:
-                const Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           Row(
             children: [
-
               Container(
                 width: 38,
                 height: 38,
-
-                decoration:
-                    BoxDecoration(
-                  color:
-                      color.withOpacity(
-                    0.1,
-                  ),
-
-                  borderRadius:
-                      BorderRadius.circular(
-                    11,
-                  ),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(11),
                 ),
-
                 child: Icon(
                   icon,
                   size: 21,
                   color: color,
                 ),
               ),
-
               const Spacer(),
-
               const Icon(
                 Icons.more_horiz,
                 color: Colors.grey,
@@ -1180,63 +811,37 @@ class _DashboardScreenState
             ],
           ),
 
-          const SizedBox(
-            height: 14,
-          ),
+          const SizedBox(height: 14),
 
           Text(
             title,
-
-            style:
-                const TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               color: Colors.grey,
-              fontWeight:
-                  FontWeight.w500,
+              fontWeight: FontWeight.w500,
             ),
           ),
 
-          const SizedBox(
-            height: 4,
-          ),
+          const SizedBox(height: 4),
 
           Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.end,
-
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-
               Text(
                 value,
-
-                style:
-                    const TextStyle(
+                style: const TextStyle(
                   fontSize: 23,
-                  fontWeight:
-                      FontWeight.bold,
-                  color:
-                      JalRakshakTheme
-                          .textDark,
+                  fontWeight: FontWeight.bold,
+                  color: JalRakshakTheme.textDark,
                 ),
               ),
-
               if (unit.isNotEmpty) ...[
-
-                const SizedBox(
-                  width: 4,
-                ),
-
+                const SizedBox(width: 4),
                 Padding(
-                  padding:
-                      const EdgeInsets.only(
-                    bottom: 3,
-                  ),
-
+                  padding: const EdgeInsets.only(bottom: 3),
                   child: Text(
                     unit,
-
-                    style:
-                        const TextStyle(
+                    style: const TextStyle(
                       fontSize: 10,
                       color: Colors.grey,
                     ),
@@ -1257,144 +862,75 @@ class _DashboardScreenState
   Widget _buildUsageClassification(
     SensorData data,
   ) {
-
-    final bool drinkingSafe =
-        _isDrinkingSafe(data);
-
-    final bool cookingSafe =
-        _isCookingSafe(data);
-
-    final bool bathingSafe =
-        _isBathingSafe(data);
-
-    final bool washingSafe =
-        _isWashingSafe(data);
-
-    final bool cleaningSafe =
-        _isCleaningSafe(data);
-
-    final bool irrigationSafe =
-        _isIrrigationSafe(data);
-
-    final bool industrialModerate =
-        data.wqi >= 50;
+    final bool drinkingSafe = _isDrinkingSafe(data);
+    final bool cookingSafe = _isCookingSafe(data);
+    final bool bathingSafe = _isBathingSafe(data);
+    final bool washingSafe = _isWashingSafe(data);
+    final bool cleaningSafe = _isCleaningSafe(data);
+    final bool irrigationSafe = _isIrrigationSafe(data);
+    final bool industrialModerate = data.wqi >= 50;
 
     return Container(
       width: double.infinity,
-
-      decoration:
-          BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(18),
-
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color:
-              JalRakshakTheme
-                  .primaryBlue
-                  .withOpacity(0.15),
+          color: JalRakshakTheme.primaryBlue.withOpacity(0.15),
         ),
-
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.04,
-            ),
-
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
-
-            offset:
-                const Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-
       child: Column(
         children: [
-
-          // --------------------------------------------------------
-          // HEADER
-          // --------------------------------------------------------
-
           InkWell(
-            borderRadius:
-                BorderRadius.circular(18),
-
+            borderRadius: BorderRadius.circular(18),
             onTap: () {
-
               setState(() {
-                _usageExpanded =
-                    !_usageExpanded;
+                _usageExpanded = !_usageExpanded;
               });
             },
-
             child: Padding(
-              padding:
-                  const EdgeInsets.all(18),
-
+              padding: const EdgeInsets.all(18),
               child: Row(
                 children: [
-
                   Container(
                     width: 48,
                     height: 48,
-
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          JalRakshakTheme
-                              .primaryBlue
-                              .withOpacity(0.1),
-
-                      borderRadius:
-                          BorderRadius.circular(
-                        14,
-                      ),
+                    decoration: BoxDecoration(
+                      color: JalRakshakTheme.primaryBlue
+                          .withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(14),
                     ),
-
-                    child:
-                        const Icon(
-                      Icons
-                          .water_drop_outlined,
-
-                      color:
-                          JalRakshakTheme
-                              .primaryBlue,
-
+                    child: const Icon(
+                      Icons.water_drop_outlined,
+                      color: JalRakshakTheme.primaryBlue,
                       size: 26,
                     ),
                   ),
 
-                  const SizedBox(
-                    width: 14,
-                  ),
+                  const SizedBox(width: 14),
 
                   Expanded(
                     child: Text(
-                      _language.text(
-                        'waterUsage',
-                      ),
-
-                      style: TextStyle(
+                      _language.text('waterUsage'),
+                      style: const TextStyle(
                         fontSize: 17,
-                        fontWeight:
-                            FontWeight.bold,
-                        color:
-                            JalRakshakTheme
-                                .textDark,
+                        fontWeight: FontWeight.bold,
+                        color: JalRakshakTheme.textDark,
                       ),
                     ),
                   ),
 
                   Icon(
                     _usageExpanded
-                        ? Icons
-                            .keyboard_arrow_up_rounded
-                        : Icons
-                            .keyboard_arrow_down_rounded,
-
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
                     color: Colors.grey,
                     size: 27,
                   ),
@@ -1403,171 +939,73 @@ class _DashboardScreenState
             ),
           ),
 
-          // --------------------------------------------------------
-          // OPTIONS
-          // --------------------------------------------------------
-
           if (_usageExpanded) ...[
-
             Divider(
               height: 1,
-              color:
-                  Colors.grey.shade200,
+              color: Colors.grey.shade200,
             ),
 
             _buildUsageOption(
-              icon:
-                  Icons.local_drink_rounded,
-
-              title:
-                  _language.text(
-                'drinking',
-              ),
-
-              status:
-                  drinkingSafe
-                      ? 'Safe'
-                      : 'Not Safe',
-
-              color:
-                  drinkingSafe
-                      ? JalRakshakTheme
-                          .safeGreen
-                      : JalRakshakTheme
-                          .dangerRed,
+              icon: Icons.local_drink_rounded,
+              title: _language.text('drinking'),
+              status: drinkingSafe ? 'Safe' : 'Not Safe',
+              color: drinkingSafe
+                  ? JalRakshakTheme.safeGreen
+                  : JalRakshakTheme.dangerRed,
             ),
 
             _buildUsageOption(
-              icon:
-                  Icons.restaurant_rounded,
-
-              title:
-                  _language.text(
-                'cooking',
-              ),
-
-              status:
-                  cookingSafe
-                      ? 'Safe'
-                      : 'Not Safe',
-
-              color:
-                  cookingSafe
-                      ? JalRakshakTheme
-                          .safeGreen
-                      : JalRakshakTheme
-                          .dangerRed,
+              icon: Icons.restaurant_rounded,
+              title: _language.text('cooking'),
+              status: cookingSafe ? 'Safe' : 'Not Safe',
+              color: cookingSafe
+                  ? JalRakshakTheme.safeGreen
+                  : JalRakshakTheme.dangerRed,
             ),
 
             _buildUsageOption(
-              icon:
-                  Icons.shower_rounded,
-
-              title:
-                  _language.text(
-                'bathing',
-              ),
-
-              status:
-                  bathingSafe
-                      ? 'Safe'
-                      : 'Not Safe',
-
-              color:
-                  bathingSafe
-                      ? JalRakshakTheme
-                          .safeGreen
-                      : JalRakshakTheme
-                          .dangerRed,
+              icon: Icons.shower_rounded,
+              title: _language.text('bathing'),
+              status: bathingSafe ? 'Safe' : 'Not Safe',
+              color: bathingSafe
+                  ? JalRakshakTheme.safeGreen
+                  : JalRakshakTheme.dangerRed,
             ),
 
             _buildUsageOption(
-              icon:
-                  Icons.checkroom_rounded,
-
-              title:
-                  _language.text(
-                'washingClothes',
-              ),
-
-              status:
-                  washingSafe
-                      ? 'Safe'
-                      : 'Not Safe',
-
-              color:
-                  washingSafe
-                      ? JalRakshakTheme
-                          .safeGreen
-                      : JalRakshakTheme
-                          .dangerRed,
+              icon: Icons.checkroom_rounded,
+              title: _language.text('washingClothes'),
+              status: washingSafe ? 'Safe' : 'Not Safe',
+              color: washingSafe
+                  ? JalRakshakTheme.safeGreen
+                  : JalRakshakTheme.dangerRed,
             ),
 
             _buildUsageOption(
-              icon:
-                  Icons.cleaning_services_rounded,
-
-              title:
-                  _language.text(
-                'cleaning',
-              ),
-
-              status:
-                  cleaningSafe
-                      ? 'Safe'
-                      : 'Not Safe',
-
-              color:
-                  cleaningSafe
-                      ? JalRakshakTheme
-                          .safeGreen
-                      : JalRakshakTheme
-                          .dangerRed,
+              icon: Icons.cleaning_services_rounded,
+              title: _language.text('cleaning'),
+              status: cleaningSafe ? 'Safe' : 'Not Safe',
+              color: cleaningSafe
+                  ? JalRakshakTheme.safeGreen
+                  : JalRakshakTheme.dangerRed,
             ),
 
             _buildUsageOption(
-              icon:
-                  Icons.eco_rounded,
-
-              title:
-                  _language.text(
-                'irrigation',
-              ),
-
-              status:
-                  irrigationSafe
-                      ? 'Safe'
-                      : 'Not Safe',
-
-              color:
-                  irrigationSafe
-                      ? JalRakshakTheme
-                          .safeGreen
-                      : JalRakshakTheme
-                          .dangerRed,
+              icon: Icons.eco_rounded,
+              title: _language.text('irrigation'),
+              status: irrigationSafe ? 'Safe' : 'Not Safe',
+              color: irrigationSafe
+                  ? JalRakshakTheme.safeGreen
+                  : JalRakshakTheme.dangerRed,
             ),
 
             _buildUsageOption(
-              icon:
-                  Icons.factory_rounded,
-
-              title:
-                  _language.text(
-                'industrialUse',
-              ),
-
-              status:
-                  industrialModerate
-                      ? 'Moderate'
-                      : 'Not Safe',
-
-              color:
-                  industrialModerate
-                      ? JalRakshakTheme
-                          .warningOrange
-                      : JalRakshakTheme
-                          .dangerRed,
-
+              icon: Icons.factory_rounded,
+              title: _language.text('industrialUse'),
+              status: industrialModerate ? 'Moderate' : 'Not Safe',
+              color: industrialModerate
+                  ? JalRakshakTheme.warningOrange
+                  : JalRakshakTheme.dangerRed,
               last: true,
             ),
           ],
@@ -1577,65 +1015,132 @@ class _DashboardScreenState
   }
 
   // ================================================================
-  // USAGE RULES
-  // ================================================================
+// WATER USAGE RULES
+// ML CLASSIFICATION HAS PRIORITY
+// ================================================================
 
-  bool _isDrinkingSafe(
-    SensorData data,
-  ) {
+String _mlClassification(SensorData data) {
+  return data.status.trim().toLowerCase();
+}
 
-    return data.wqi >= 80 &&
-        data.ph >= 6.5 &&
-        data.ph <= 8.5 &&
-        data.tds <= 500 &&
-        data.turbidity <= 5;
+// ================================================================
+// DRINKING
+// ================================================================
+
+bool _isDrinkingSafe(SensorData data) {
+  final classification = _mlClassification(data);
+
+  // Only ML "Drinking" classification can make
+  // drinking safe.
+  if (classification != 'drinking') {
+    return false;
   }
 
-  bool _isCookingSafe(
-    SensorData data,
-  ) {
+  return data.wqi >= 80 &&
+      data.ph >= 6.5 &&
+      data.ph <= 8.5 &&
+      data.tds <= 500 &&
+      data.turbidity < 5;
+}
 
-    return data.wqi >= 75 &&
-        data.ph >= 6.5 &&
-        data.ph <= 8.5 &&
-        data.tds <= 600 &&
-        data.turbidity <= 5;
+// ================================================================
+// COOKING
+// ================================================================
+
+bool _isCookingSafe(SensorData data) {
+  final classification = _mlClassification(data);
+
+  // Washing/Cleaning, Irrigation/Garden and Unsafe
+  // must not be recommended for cooking.
+  if (classification != 'drinking') {
+    return false;
   }
 
-  bool _isBathingSafe(
-    SensorData data,
-  ) {
+  return data.wqi >= 75 &&
+      data.ph >= 6.5 &&
+      data.ph <= 8.5 &&
+      data.tds <= 600 &&
+      data.turbidity < 5;
+}
 
-    return data.ph >= 6.0 &&
-        data.ph <= 9.0 &&
-        data.turbidity <= 10;
+// ================================================================
+// BATHING
+// ================================================================
+
+bool _isBathingSafe(SensorData data) {
+  final classification = _mlClassification(data);
+
+  // Unsafe water should never be recommended for bathing.
+  if (classification == 'unsafe') {
+    return false;
   }
 
-  bool _isWashingSafe(
-    SensorData data,
-  ) {
+  return data.ph >= 6.0 &&
+      data.ph <= 9.0 &&
+      data.turbidity < 10;
+}
 
-    return data.turbidity <= 12 &&
-        data.tds <= 1000;
+// ================================================================
+// WASHING CLOTHES
+// ================================================================
+
+bool _isWashingSafe(SensorData data) {
+  final classification = _mlClassification(data);
+
+  if (classification == 'unsafe') {
+    return false;
   }
 
-  bool _isCleaningSafe(
-    SensorData data,
-  ) {
+  return classification == 'washing/cleaning' ||
+      classification == 'drinking' ||
+      data.turbidity < 12;
+}
 
-    return data.turbidity <= 15 &&
-        data.tds <= 1500;
+// ================================================================
+// CLEANING
+// ================================================================
+
+bool _isCleaningSafe(SensorData data) {
+  final classification = _mlClassification(data);
+
+  if (classification == 'unsafe') {
+    return false;
   }
 
-  bool _isIrrigationSafe(
-    SensorData data,
-  ) {
+  return classification == 'washing/cleaning' ||
+      classification == 'drinking' ||
+      data.turbidity < 15;
+}
 
-    return data.tds <= 1200 &&
-        data.ph >= 6.0 &&
-        data.ph <= 9.0;
+// ================================================================
+// IRRIGATION / GARDEN
+// ================================================================
+
+bool _isIrrigationSafe(SensorData data) {
+  final classification = _mlClassification(data);
+
+  if (classification == 'unsafe') {
+    return false;
   }
 
+  return classification == 'irrigation/garden' ||
+      classification == 'washing/cleaning' ||
+      classification == 'drinking';
+}
+
+// ================================================================
+// INDUSTRIAL USE
+// ================================================================
+
+bool _isIndustrialSafe(SensorData data) {
+  final classification = _mlClassification(data);
+
+  if (classification == 'unsafe') {
+    return false;
+  }
+
+  return data.wqi >= 50;
+}
   // ================================================================
   // USAGE OPTION
   // ================================================================
@@ -1647,58 +1152,35 @@ class _DashboardScreenState
     required Color color,
     bool last = false,
   }) {
-
     return Padding(
-      padding:
-          EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         12,
         6,
         12,
         last ? 12 : 6,
       ),
-
       child: Container(
         width: double.infinity,
-
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 12,
         ),
-
-        decoration:
-            BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
-
-          borderRadius:
-              BorderRadius.circular(14),
-
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color:
-                Colors.grey.shade200,
+            color: Colors.grey.shade200,
           ),
         ),
-
         child: Row(
           children: [
-
             Container(
               width: 42,
               height: 42,
-
-              decoration:
-                  BoxDecoration(
-                color:
-                    color.withOpacity(
-                  0.1,
-                ),
-
-                borderRadius:
-                    BorderRadius.circular(
-                  12,
-                ),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
               ),
-
               child: Icon(
                 icon,
                 color: color,
@@ -1706,62 +1188,40 @@ class _DashboardScreenState
               ),
             ),
 
-            const SizedBox(
-              width: 13,
-            ),
+            const SizedBox(width: 13),
 
             Expanded(
               child: Text(
                 title,
-
-                style:
-                    const TextStyle(
+                style: const TextStyle(
                   fontSize: 15,
-                  fontWeight:
-                      FontWeight.w600,
-                  color:
-                      JalRakshakTheme
-                          .textDark,
+                  fontWeight: FontWeight.w600,
+                  color: JalRakshakTheme.textDark,
                 ),
               ),
             ),
 
             Text(
               status == 'Safe'
-                  ? _language.text(
-                      'safe',
-                    )
+                  ? _language.text('safe')
                   : status == 'Moderate'
-                      ? _language.text(
-                          'moderate',
-                        )
-                      : _language.text(
-                          'notSafe',
-                        ),
-
-              style:
-                  TextStyle(
+                      ? _language.text('moderate')
+                      : _language.text('notSafe'),
+              style: TextStyle(
                 fontSize: 12,
-                fontWeight:
-                    FontWeight.bold,
+                fontWeight: FontWeight.bold,
                 color: color,
               ),
             ),
 
-            const SizedBox(
-              width: 8,
-            ),
+            const SizedBox(width: 8),
 
             Icon(
               status == 'Safe'
-                  ? Icons
-                      .check_circle_outline_rounded
+                  ? Icons.check_circle_outline_rounded
                   : status == 'Moderate'
-                      ? Icons
-                          .info_outline_rounded
-                      : Icons
-                          .cancel_outlined,
-
+                      ? Icons.info_outline_rounded
+                      : Icons.cancel_outlined,
               color: color,
               size: 20,
             ),
@@ -1773,149 +1233,114 @@ class _DashboardScreenState
 
   // ================================================================
   // HEALTH RISKS
+  //
+  // IMPORTANT:
+  // Washing/Cleaning and Irrigation/Garden are NOT health issues.
+  // Only actual parameter problems or an Unsafe ML classification
+  // appear here.
   // ================================================================
 
   Widget _buildHealthRisks(
     SensorData data,
   ) {
+    final bool highTds = data.tds > 500;
 
-    final bool highTds =
-        data.tds > 500;
-
-    final bool highTurbidity =
-        data.turbidity > 5;
+    // 5 NTU is the configured monitoring threshold.
+    final bool highTurbidity = data.turbidity >= 5;
 
     final bool phAbnormal =
         data.ph < 6.5 ||
         data.ph > 8.5;
 
-    final bool critical =
-        data.wqi < 60;
+    final bool poorWqi = data.wqi < 60;
 
-    final bool unsafe =
-        critical ||
+    final String classification =
+        data.status.trim().toLowerCase();
+
+    final bool unsafeClassification =
+        classification == 'unsafe';
+
+    final bool healthConcern =
         highTds ||
         highTurbidity ||
-        phAbnormal;
+        phAbnormal ||
+        poorWqi ||
+        unsafeClassification;
 
     final Color healthColor =
-        unsafe
-            ? JalRakshakTheme
-                .dangerRed
-            : JalRakshakTheme
-                .safeGreen;
+        healthConcern
+            ? JalRakshakTheme.dangerRed
+            : JalRakshakTheme.safeGreen;
 
     return Container(
       width: double.infinity,
-
-      decoration:
-          BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(22),
-
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: unsafe
-              ? JalRakshakTheme
-                  .dangerRed
-                  .withOpacity(0.18)
-              : JalRakshakTheme
-                  .safeGreen
-                  .withOpacity(0.18),
+          color: healthConcern
+              ? JalRakshakTheme.dangerRed.withOpacity(0.18)
+              : JalRakshakTheme.safeGreen.withOpacity(0.18),
         ),
-
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.05,
-            ),
-
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 14,
-
-            offset:
-                const Offset(0, 5),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
-
       child: Column(
         children: [
-
           // --------------------------------------------------------
           // HEADER
           // --------------------------------------------------------
 
           InkWell(
-            borderRadius:
-                BorderRadius.circular(22),
-
+            borderRadius: BorderRadius.circular(22),
             onTap: () {
-
               setState(() {
-                _healthExpanded =
-                    !_healthExpanded;
+                _healthExpanded = !_healthExpanded;
               });
             },
-
             child: Padding(
-              padding:
-                  const EdgeInsets.all(18),
-
+              padding: const EdgeInsets.all(18),
               child: Row(
                 children: [
-
                   _buildDoctorIllustration(
                     healthColor,
                   ),
 
-                  const SizedBox(
-                    width: 14,
-                  ),
+                  const SizedBox(width: 14),
 
                   Expanded(
                     child: Column(
                       crossAxisAlignment:
-                          CrossAxisAlignment
-                              .start,
-
+                          CrossAxisAlignment.start,
                       children: [
-
                         Text(
-                          _language.text(
-                            'healthRisks',
-                          ),
-
-                          style: TextStyle(
+                          _language.text('healthRisks'),
+                          style: const TextStyle(
                             fontSize: 18,
-                            fontWeight:
-                                FontWeight.bold,
-                            color:
-                                JalRakshakTheme
-                                    .textDark,
+                            fontWeight: FontWeight.bold,
+                            color: JalRakshakTheme.textDark,
                           ),
                         ),
 
-                        const SizedBox(
-                          height: 5,
-                        ),
+                        const SizedBox(height: 5),
 
                         Text(
-                          unsafe
+                          healthConcern
                               ? _language.text(
                                   'healthConcernsDetected',
                                 )
                               : _language.text(
                                   'waterLooksSafe',
                                 ),
-
                           style: TextStyle(
                             fontSize: 12,
-                            color:
-                                healthColor,
-                            fontWeight:
-                                FontWeight.w600,
+                            color: healthColor,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -1925,25 +1350,15 @@ class _DashboardScreenState
                   Container(
                     width: 38,
                     height: 38,
-
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          Colors.grey.shade100,
-                      shape:
-                          BoxShape.circle,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      shape: BoxShape.circle,
                     ),
-
                     child: Icon(
                       _healthExpanded
-                          ? Icons
-                              .keyboard_arrow_up_rounded
-                          : Icons
-                              .keyboard_arrow_down_rounded,
-
-                      color:
-                          Colors.grey.shade700,
-
+                          ? Icons.keyboard_arrow_up_rounded
+                          : Icons.keyboard_arrow_down_rounded,
+                      color: Colors.grey.shade700,
                       size: 23,
                     ),
                   ),
@@ -1953,152 +1368,94 @@ class _DashboardScreenState
           ),
 
           // --------------------------------------------------------
-          // EXPANDED SECTION
+          // CONTENT
           // --------------------------------------------------------
 
           if (_healthExpanded) ...[
-
             Divider(
               height: 1,
-              color:
-                  Colors.grey.shade200,
+              color: Colors.grey.shade200,
             ),
 
             Padding(
-              padding:
-                  const EdgeInsets.fromLTRB(
+              padding: const EdgeInsets.fromLTRB(
                 16,
                 16,
                 16,
                 18,
               ),
-
               child: Column(
                 crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
-
+                    CrossAxisAlignment.start,
                 children: [
-
                   // ------------------------------------------------
                   // MAIN HEALTH STATUS
                   // ------------------------------------------------
 
                   Container(
                     width: double.infinity,
-
-                    padding:
-                        const EdgeInsets.all(
-                      16,
-                    ),
-
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          healthColor
-                              .withOpacity(
-                        0.06,
-                      ),
-
-                      borderRadius:
-                          BorderRadius.circular(
-                        17,
-                      ),
-
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: healthColor.withOpacity(0.06),
+                      borderRadius: BorderRadius.circular(17),
                       border: Border.all(
-                        color:
-                            healthColor
-                                .withOpacity(
-                          0.20,
-                        ),
+                        color: healthColor.withOpacity(0.20),
                       ),
                     ),
-
                     child: Row(
                       children: [
-
                         Container(
                           width: 45,
                           height: 45,
-
-                          decoration:
-                              BoxDecoration(
-                            color:
-                                healthColor,
-                            shape:
-                                BoxShape.circle,
+                          decoration: BoxDecoration(
+                            color: healthColor,
+                            shape: BoxShape.circle,
                           ),
-
                           child: Icon(
-                            unsafe
-                                ? Icons
-                                    .warning_rounded
-                                : Icons
-                                    .check_rounded,
-
-                            color:
-                                Colors.white,
-
+                            healthConcern
+                                ? Icons.warning_rounded
+                                : Icons.check_rounded,
+                            color: Colors.white,
                             size: 25,
                           ),
                         ),
 
-                        const SizedBox(
-                          width: 12,
-                        ),
+                        const SizedBox(width: 12),
 
                         Expanded(
                           child: Column(
                             crossAxisAlignment:
-                                CrossAxisAlignment
-                                    .start,
-
+                                CrossAxisAlignment.start,
                             children: [
-
                               Text(
-                                unsafe
-                                    ? _language
-                                        .text(
-                                      'waterNotSafe',
-                                    )
-                                    : _language
-                                        .text(
-                                      'waterLooksSafe',
-                                    ),
-
-                                style:
-                                    TextStyle(
+                                healthConcern
+                                    ? _language.text(
+                                        'waterNotSafe',
+                                      )
+                                    : _language.text(
+                                        'waterLooksSafe',
+                                      ),
+                                style: TextStyle(
                                   fontSize: 16,
-                                  fontWeight:
-                                      FontWeight
-                                          .bold,
-                                  color:
-                                      healthColor,
+                                  fontWeight: FontWeight.bold,
+                                  color: healthColor,
                                 ),
                               ),
 
-                              const SizedBox(
-                                height: 4,
-                              ),
+                              const SizedBox(height: 4),
 
                               Text(
-                                unsafe
-                                    ? _language
-                                        .text(
-                                      'avoidDrinking',
-                                    )
-                                    : _language
-                                        .text(
-                                      'safeRange',
-                                    ),
-
-                                style:
-                                    const TextStyle(
+                                healthConcern
+                                    ? _language.text(
+                                        'avoidDrinking',
+                                      )
+                                    : _language.text(
+                                        'safeRange',
+                                      ),
+                                style: const TextStyle(
                                   fontSize: 11,
-                                  color:
-                                      Colors.grey,
-                                  height:
-                                      1.35,
+                                  color: Colors.grey,
+                                  height: 1.35,
                                 ),
                               ),
                             ],
@@ -2108,80 +1465,48 @@ class _DashboardScreenState
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
 
                   // ------------------------------------------------
-                  // DOCTOR + MESSAGE
+                  // DOCTOR MESSAGE
                   // ------------------------------------------------
 
                   Row(
                     crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
-
+                        CrossAxisAlignment.start,
                     children: [
-
                       _buildDoctorIllustration(
                         healthColor,
                         large: true,
                       ),
 
-                      const SizedBox(
-                        width: 12,
-                      ),
+                      const SizedBox(width: 12),
 
                       Expanded(
                         child: Container(
-                          padding:
-                              const EdgeInsets
-                                  .all(13),
-
-                          decoration:
-                              BoxDecoration(
-                            color:
-                                Colors.grey
-                                    .shade50,
-
+                          padding: const EdgeInsets.all(13),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
                             borderRadius:
-                                const BorderRadius
-                                    .only(
-                              topLeft:
-                                  Radius.circular(
-                                5,
-                              ),
-                              topRight:
-                                  Radius.circular(
-                                14,
-                              ),
-                              bottomLeft:
-                                  Radius.circular(
-                                14,
-                              ),
-                              bottomRight:
-                                  Radius.circular(
-                                14,
-                              ),
+                                const BorderRadius.only(
+                              topLeft: Radius.circular(5),
+                              topRight: Radius.circular(14),
+                              bottomLeft: Radius.circular(14),
+                              bottomRight: Radius.circular(14),
                             ),
                           ),
-
                           child: Text(
-                            unsafe
+                            healthConcern
                                 ? _language.text(
                                     'healthRiskDetected',
                                   )
                                 : _language.text(
                                     'noHealthConcern',
                                   ),
-
-                            style:
-                                const TextStyle(
+                            style: const TextStyle(
                               fontSize: 11,
-                              color:
-                                  Colors.grey,
-                              height:
-                                  1.45,
+                              color: Colors.grey,
+                              height: 1.45,
                             ),
                           ),
                         ),
@@ -2189,9 +1514,7 @@ class _DashboardScreenState
                     ],
                   ),
 
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
 
                   // ------------------------------------------------
                   // POSSIBLE HEALTH ISSUES
@@ -2201,173 +1524,130 @@ class _DashboardScreenState
                     _language.text(
                       'possibleHealthIssues',
                     ),
-
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
-                      fontWeight:
-                          FontWeight.bold,
-                      color:
-                          JalRakshakTheme
-                              .textDark,
+                      fontWeight: FontWeight.bold,
+                      color: JalRakshakTheme.textDark,
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+                  const SizedBox(height: 12),
+
+                  // ------------------------------------------------
+                  // UNSAFE CLASSIFICATION
+                  // ------------------------------------------------
+
+                  if (unsafeClassification)
+                    _buildHealthRiskItem(
+                      icon: Icons.warning_amber_rounded,
+                      title: _language.text('unsafe'),
+                      description:
+                          'The ML model classified the current water as Unsafe. Avoid direct drinking until the water is treated and verified.',
+                      color: JalRakshakTheme.dangerRed,
+                    ),
+
+                  // ------------------------------------------------
+                  // HIGH TDS
+                  // ------------------------------------------------
 
                   if (highTds)
                     _buildHealthRiskItem(
-                      icon:
-                          Icons
-                              .water_drop_outlined,
-
-                      title:
-                          _language.text(
-                        'highTds',
-                      ),
-
+                      icon: Icons.water_drop_outlined,
+                      title: _language.text('highTds'),
                       description:
                           _language.text(
                         'highTdsDescription',
                       ),
-
-                      color:
-                          JalRakshakTheme
-                              .dangerRed,
+                      color: JalRakshakTheme.dangerRed,
                     ),
+
+                  // ------------------------------------------------
+                  // HIGH TURBIDITY
+                  // ------------------------------------------------
 
                   if (highTurbidity)
                     _buildHealthRiskItem(
-                      icon:
-                          Icons.opacity_rounded,
-
-                      title:
-                          _language.text(
-                        'highTurbidity',
-                      ),
-
+                      icon: Icons.opacity_rounded,
+                      title: _language.text('highTurbidity'),
                       description:
                           _language.text(
                         'highTurbidityDescription',
                       ),
-
-                      color:
-                          JalRakshakTheme
-                              .warningOrange,
+                      color: JalRakshakTheme.warningOrange,
                     ),
+
+                  // ------------------------------------------------
+                  // ABNORMAL pH
+                  // ------------------------------------------------
 
                   if (phAbnormal)
                     _buildHealthRiskItem(
-                      icon:
-                          Icons
-                              .science_outlined,
-
-                      title:
-                          _language.text(
-                        'imbalancedPh',
-                      ),
-
+                      icon: Icons.science_outlined,
+                      title: _language.text('imbalancedPh'),
                       description:
                           _language.text(
                         'imbalancedPhDescription',
                       ),
-
-                      color:
-                          JalRakshakTheme
-                              .warningOrange,
+                      color: JalRakshakTheme.warningOrange,
                     ),
 
-                  if (critical)
-                    _buildHealthRiskItem(
-                      icon:
-                          Icons
-                              .warning_amber_rounded,
+                  // ------------------------------------------------
+                  // POOR WQI
+                  // ------------------------------------------------
 
+                  if (poorWqi)
+                    _buildHealthRiskItem(
+                      icon: Icons.warning_amber_rounded,
                       title:
                           _language.text(
                         'poorOverallQuality',
                       ),
-
                       description:
                           _language.text(
                         'poorOverallQualityDescription',
                       ),
-
-                      color:
-                          JalRakshakTheme
-                              .dangerRed,
+                      color: JalRakshakTheme.dangerRed,
                     ),
 
-                  if (!highTds &&
-                      !highTurbidity &&
-                      !phAbnormal &&
-                      !critical)
+                  // ------------------------------------------------
+                  // NO PARAMETER HEALTH ISSUE
+                  // ------------------------------------------------
 
+                  if (!healthConcern)
                     Container(
                       width: double.infinity,
-
-                      padding:
-                          const EdgeInsets
-                              .all(15),
-
-                      decoration:
-                          BoxDecoration(
-                        color:
-                            JalRakshakTheme
-                                .safeGreen
-                                .withOpacity(
-                          0.07,
-                        ),
-
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: JalRakshakTheme.safeGreen
+                            .withOpacity(0.07),
                         borderRadius:
-                            BorderRadius.circular(
-                          15,
-                        ),
-
+                            BorderRadius.circular(15),
                         border: Border.all(
-                          color:
-                              JalRakshakTheme
-                                  .safeGreen
-                                  .withOpacity(
-                            0.12,
-                          ),
+                          color: JalRakshakTheme.safeGreen
+                              .withOpacity(0.12),
                         ),
                       ),
-
                       child: Row(
                         children: [
-
-                          Icon(
-                            Icons
-                                .verified_rounded,
-
-                            color:
-                                JalRakshakTheme
-                                    .safeGreen,
-
+                          const Icon(
+                            Icons.verified_rounded,
+                            color: JalRakshakTheme.safeGreen,
                             size: 22,
                           ),
 
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          const SizedBox(width: 10),
 
                           Expanded(
                             child: Text(
                               _language.text(
                                 'noMajorHealthRiskDetected',
                               ),
-
-                              style:
-                                  const TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color:
-                                    JalRakshakTheme
-                                        .safeGreen,
+                                    JalRakshakTheme.safeGreen,
                                 fontWeight:
-                                    FontWeight
-                                        .w600,
+                                    FontWeight.w600,
                               ),
                             ),
                           ),
@@ -2391,169 +1671,95 @@ class _DashboardScreenState
     Color color, {
     bool large = false,
   }) {
-
-    final double size =
-        large ? 72 : 58;
+    final double size = large ? 72 : 58;
 
     return SizedBox(
       width: size,
       height: size,
-
       child: Stack(
-        alignment:
-            Alignment.center,
-
+        alignment: Alignment.center,
         children: [
-
           Container(
             width: size,
             height: size,
-
-            decoration:
-                BoxDecoration(
-              color:
-                  color.withOpacity(
-                0.08,
-              ),
-
-              shape:
-                  BoxShape.circle,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.08),
+              shape: BoxShape.circle,
             ),
           ),
 
           Positioned(
-            bottom:
-                large ? 5 : 4,
-
+            bottom: large ? 5 : 4,
             child: Container(
-              width:
-                  large ? 48 : 39,
-
-              height:
-                  large ? 34 : 28,
-
-              decoration:
-                  BoxDecoration(
-                color:
-                    Colors.white,
-
-                borderRadius:
-                    BorderRadius.only(
-                  topLeft:
-                      Radius.circular(
+              width: large ? 48 : 39,
+              height: large ? 34 : 28,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(
                     large ? 18 : 14,
                   ),
-
-                  topRight:
-                      Radius.circular(
+                  topRight: Radius.circular(
                     large ? 18 : 14,
                   ),
-
-                  bottomLeft:
-                      Radius.circular(
+                  bottomLeft: Radius.circular(
                     large ? 8 : 6,
                   ),
-
-                  bottomRight:
-                      Radius.circular(
+                  bottomRight: Radius.circular(
                     large ? 8 : 6,
                   ),
                 ),
-
                 border: Border.all(
-                  color:
-                      Colors.grey.shade200,
+                  color: Colors.grey.shade200,
                 ),
               ),
-
               child: Icon(
-                Icons
-                    .medical_services_rounded,
-
-                size:
-                    large ? 23 : 19,
-
+                Icons.medical_services_rounded,
+                size: large ? 23 : 19,
                 color: color,
               ),
             ),
           ),
 
           Positioned(
-            top:
-                large ? 8 : 7,
-
+            top: large ? 8 : 7,
             child: Container(
-              width:
-                  large ? 28 : 23,
-
-              height:
-                  large ? 28 : 23,
-
-              decoration:
-                  BoxDecoration(
-                color:
-                    const Color(
-                  0xFFFFD7B5,
-                ),
-
-                shape:
-                    BoxShape.circle,
-
+              width: large ? 28 : 23,
+              height: large ? 28 : 23,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFD7B5),
+                shape: BoxShape.circle,
                 border: Border.all(
-                  color:
-                      Colors.white,
-
+                  color: Colors.white,
                   width: 2,
                 ),
               ),
-
               child: Icon(
                 Icons.person_rounded,
-
-                size:
-                    large ? 22 : 18,
-
-                color:
-                    Colors.white,
+                size: large ? 22 : 18,
+                color: Colors.white,
               ),
             ),
           ),
 
           Positioned(
             right: 0,
-            bottom:
-                large ? 2 : 1,
-
+            bottom: large ? 2 : 1,
             child: Container(
-              width:
-                  large ? 22 : 18,
-
-              height:
-                  large ? 22 : 18,
-
-              decoration:
-                  BoxDecoration(
+              width: large ? 22 : 18,
+              height: large ? 22 : 18,
+              decoration: BoxDecoration(
                 color: color,
-
-                shape:
-                    BoxShape.circle,
-
+                shape: BoxShape.circle,
                 border: Border.all(
-                  color:
-                      Colors.white,
-
+                  color: Colors.white,
                   width: 2,
                 ),
               ),
-
               child: Icon(
                 Icons.add_rounded,
-
-                color:
-                    Colors.white,
-
-                size:
-                    large ? 14 : 11,
+                color: Colors.white,
+                size: large ? 14 : 11,
               ),
             ),
           ),
@@ -2572,67 +1778,36 @@ class _DashboardScreenState
     required String description,
     required Color color,
   }) {
-
     return Padding(
-      padding:
-          const EdgeInsets.only(
-        bottom: 10,
-      ),
-
+      padding: const EdgeInsets.only(bottom: 10),
       child: Container(
         width: double.infinity,
-
-        padding:
-            const EdgeInsets.all(13),
-
-        decoration:
-            BoxDecoration(
+        padding: const EdgeInsets.all(13),
+        decoration: BoxDecoration(
           color: Colors.white,
-
-          borderRadius:
-              BorderRadius.circular(15),
-
+          borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color:
-                Colors.grey.shade200,
+            color: Colors.grey.shade200,
           ),
-
           boxShadow: [
             BoxShadow(
-              color:
-                  Colors.black.withOpacity(
-                0.025,
-              ),
-
+              color: Colors.black.withOpacity(0.025),
               blurRadius: 6,
-
-              offset:
-                  const Offset(0, 2),
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-
         child: Row(
           crossAxisAlignment:
               CrossAxisAlignment.start,
-
           children: [
-
             Container(
               width: 42,
               height: 42,
-
-              decoration:
-                  BoxDecoration(
-                color:
-                    color.withOpacity(
-                  0.10,
-                ),
-
-                shape:
-                    BoxShape.circle,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.10),
+                shape: BoxShape.circle,
               ),
-
               child: Icon(
                 icon,
                 color: color,
@@ -2640,404 +1815,33 @@ class _DashboardScreenState
               ),
             ),
 
-            const SizedBox(
-              width: 11,
-            ),
+            const SizedBox(width: 11),
 
             Expanded(
               child: Column(
                 crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
-
+                    CrossAxisAlignment.start,
                 children: [
-
                   Text(
                     title,
-
-                    style:
-                        TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      fontWeight:
-                          FontWeight.bold,
+                      fontWeight: FontWeight.bold,
                       color: color,
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 4,
-                  ),
+                  const SizedBox(height: 4),
 
                   Text(
                     description,
-
-                    style:
-                        const TextStyle(
+                    style: const TextStyle(
                       fontSize: 11,
-                      color:
-                          Colors.grey,
+                      color: Colors.grey,
                       height: 1.35,
                     ),
                   ),
                 ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ================================================================
-  // PRECAUTIONS
-  // ================================================================
-
-  Widget _buildPrecautions() {
-
-    return Container(
-      width: double.infinity,
-
-      decoration:
-          BoxDecoration(
-        color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(18),
-
-        border: Border.all(
-          color:
-              JalRakshakTheme
-                  .primaryBlue
-                  .withOpacity(0.12),
-        ),
-
-        boxShadow: [
-          BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.04,
-            ),
-
-            blurRadius: 10,
-
-            offset:
-                const Offset(0, 4),
-          ),
-        ],
-      ),
-
-      child: Column(
-        children: [
-
-          // --------------------------------------------------------
-          // HEADER
-          // --------------------------------------------------------
-
-          InkWell(
-            borderRadius:
-                BorderRadius.circular(18),
-
-            onTap: () {
-
-              setState(() {
-                _precautionsExpanded =
-                    !_precautionsExpanded;
-              });
-            },
-
-            child: Padding(
-              padding:
-                  const EdgeInsets.all(18),
-
-              child: Row(
-                children: [
-
-                  Container(
-                    width: 48,
-                    height: 48,
-
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          JalRakshakTheme
-                              .primaryBlue
-                              .withOpacity(0.10),
-
-                      borderRadius:
-                          BorderRadius.circular(
-                        14,
-                      ),
-                    ),
-
-                    child:
-                        const Icon(
-                      Icons
-                          .health_and_safety_outlined,
-
-                      color:
-                          JalRakshakTheme
-                              .primaryBlue,
-
-                      size: 26,
-                    ),
-                  ),
-
-                  const SizedBox(
-                    width: 14,
-                  ),
-
-                  Expanded(
-                    child: Text(
-                      _language.text(
-                        'precautions',
-                      ),
-
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight:
-                            FontWeight.bold,
-                        color:
-                            JalRakshakTheme
-                                .textDark,
-                      ),
-                    ),
-                  ),
-
-                  Icon(
-                    _precautionsExpanded
-                        ? Icons
-                            .keyboard_arrow_up_rounded
-                        : Icons
-                            .keyboard_arrow_down_rounded,
-
-                    color: Colors.grey,
-
-                    size: 27,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // --------------------------------------------------------
-          // CONTENT
-          // --------------------------------------------------------
-
-          if (_precautionsExpanded) ...[
-
-            Divider(
-              height: 1,
-              color:
-                  Colors.grey.shade200,
-            ),
-
-            Padding(
-              padding:
-                  const EdgeInsets.fromLTRB(
-                16,
-                16,
-                16,
-                8,
-              ),
-
-              child: Align(
-                alignment:
-                    Alignment.centerLeft,
-
-                child: Text(
-                  _dashboardText(
-                    'Follow these precautions to stay safe',
-                  ),
-
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight:
-                        FontWeight.w600,
-                    color:
-                        JalRakshakTheme
-                            .textDark,
-                  ),
-                ),
-              ),
-            ),
-
-            Padding(
-              padding:
-                  const EdgeInsets.fromLTRB(
-                16,
-                8,
-                16,
-                18,
-              ),
-
-              child: Column(
-                children: [
-
-                  _buildPrecautionItem(
-                    icon:
-                        Icons.no_drinks_outlined,
-
-                    title:
-                        _dashboardText(
-                      'Do not drink untreated water.',
-                    ),
-
-                    color:
-                        JalRakshakTheme
-                            .dangerRed,
-                  ),
-
-                  _buildPrecautionItem(
-                    icon:
-                        Icons.water_drop_outlined,
-
-                    title:
-                        _dashboardText(
-                      'Always store water in clean containers.',
-                    ),
-
-                    color:
-                        JalRakshakTheme
-                            .primaryBlue,
-                  ),
-
-                  _buildPrecautionItem(
-                    icon:
-                        Icons
-                            .cleaning_services_outlined,
-
-                    title:
-                        _dashboardText(
-                      'Clean your storage tanks regularly.',
-                    ),
-
-                    color:
-                        JalRakshakTheme
-                            .primaryBlue,
-                  ),
-
-                  _buildPrecautionItem(
-                    icon:
-                        Icons
-                            .local_drink_outlined,
-
-                    title:
-                        _dashboardText(
-                      'Boil water if unsure about quality.',
-                    ),
-
-                    color:
-                        JalRakshakTheme
-                            .primaryBlue,
-                  ),
-
-                  _buildPrecautionItem(
-                    icon:
-                        Icons
-                            .water_damage_outlined,
-
-                    title:
-                        _dashboardText(
-                      'Use proper filters and replace them on time.',
-                    ),
-
-                    color:
-                        JalRakshakTheme
-                            .primaryBlue,
-
-                    last: true,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // ================================================================
-  // PRECAUTION ITEM
-  // ================================================================
-
-  Widget _buildPrecautionItem({
-    required IconData icon,
-    required String title,
-    required Color color,
-    bool last = false,
-  }) {
-
-    return Padding(
-      padding:
-          EdgeInsets.only(
-        bottom: last ? 0 : 10,
-      ),
-
-      child: Container(
-        width: double.infinity,
-
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal: 13,
-          vertical: 13,
-        ),
-
-        decoration:
-            BoxDecoration(
-          color: Colors.white,
-
-          borderRadius:
-              BorderRadius.circular(15),
-
-          border: Border.all(
-            color:
-                Colors.grey.shade200,
-          ),
-        ),
-
-        child: Row(
-          children: [
-
-            Container(
-              width: 44,
-              height: 44,
-
-              decoration:
-                  BoxDecoration(
-                color:
-                    color.withOpacity(
-                  0.10,
-                ),
-
-                shape:
-                    BoxShape.circle,
-              ),
-
-              child: Icon(
-                icon,
-                color: color,
-                size: 22,
-              ),
-            ),
-
-            const SizedBox(
-              width: 13,
-            ),
-
-            Expanded(
-              child: Text(
-                title,
-
-                style:
-                    const TextStyle(
-                  fontSize: 13,
-                  fontWeight:
-                      FontWeight.w600,
-                  color:
-                      JalRakshakTheme
-                          .textDark,
-                  height: 1.35,
-                ),
               ),
             ),
           ],
@@ -3053,141 +1857,92 @@ class _DashboardScreenState
   Widget _buildTreatmentSuggestions(
     SensorData data,
   ) {
-
-    final bool highTds =
-        data.tds > 500;
+    final bool highTds = data.tds > 500;
 
     final bool highTurbidity =
-        data.turbidity > 5;
+        data.turbidity >= 5;
 
     final bool phAbnormal =
         data.ph < 6.5 ||
         data.ph > 8.5;
 
-    final bool unsafe =
-        data.wqi < 60 ||
-        highTds ||
-        highTurbidity ||
-        phAbnormal;
+    final String classification =
+        data.status.trim().toLowerCase();
+
+    final bool unsafeClassification =
+        classification == 'unsafe';
 
     return Container(
       width: double.infinity,
-
-      decoration:
-          BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(18),
-
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color:
-              JalRakshakTheme
-                  .primaryBlue
-                  .withOpacity(0.12),
+              JalRakshakTheme.primaryBlue.withOpacity(0.12),
         ),
-
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.04,
-            ),
-
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
-
-            offset:
-                const Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-
       child: Column(
         children: [
-
           // --------------------------------------------------------
           // HEADER
           // --------------------------------------------------------
 
           InkWell(
-            borderRadius:
-                BorderRadius.circular(18),
-
+            borderRadius: BorderRadius.circular(18),
             onTap: () {
-
               setState(() {
                 _treatmentExpanded =
                     !_treatmentExpanded;
               });
             },
-
             child: Padding(
-              padding:
-                  const EdgeInsets.all(18),
-
+              padding: const EdgeInsets.all(18),
               child: Row(
                 children: [
-
                   Container(
                     width: 48,
                     height: 48,
-
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          JalRakshakTheme
-                              .primaryBlue
-                              .withOpacity(0.10),
-
+                    decoration: BoxDecoration(
+                      color: JalRakshakTheme.primaryBlue
+                          .withOpacity(0.10),
                       borderRadius:
-                          BorderRadius.circular(
-                        14,
-                      ),
+                          BorderRadius.circular(14),
                     ),
-
-                    child:
-                        const Icon(
-                      Icons
-                          .medical_services_outlined,
-
-                      color:
-                          JalRakshakTheme
-                              .primaryBlue,
-
+                    child: const Icon(
+                      Icons.medical_services_outlined,
+                      color: JalRakshakTheme.primaryBlue,
                       size: 26,
                     ),
                   ),
 
-                  const SizedBox(
-                    width: 14,
-                  ),
+                  const SizedBox(width: 14),
 
                   Expanded(
                     child: Text(
                       _language.text(
                         'treatmentSuggestions',
                       ),
-
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 17,
-                        fontWeight:
-                            FontWeight.bold,
-                        color:
-                            JalRakshakTheme
-                                .textDark,
+                        fontWeight: FontWeight.bold,
+                        color: JalRakshakTheme.textDark,
                       ),
                     ),
                   ),
 
                   Icon(
                     _treatmentExpanded
-                        ? Icons
-                            .keyboard_arrow_up_rounded
-                        : Icons
-                            .keyboard_arrow_down_rounded,
-
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
                     color: Colors.grey,
-
                     size: 27,
                   ),
                 ],
@@ -3200,244 +1955,203 @@ class _DashboardScreenState
           // --------------------------------------------------------
 
           if (_treatmentExpanded) ...[
-
             Divider(
               height: 1,
-              color:
-                  Colors.grey.shade200,
+              color: Colors.grey.shade200,
             ),
 
             Padding(
-              padding:
-                  const EdgeInsets.fromLTRB(
+              padding: const EdgeInsets.fromLTRB(
                 16,
                 16,
                 16,
                 18,
               ),
-
               child: Column(
                 crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
-
+                    CrossAxisAlignment.start,
                 children: [
-
                   Text(
                     _dashboardText(
                       'Simple steps based on the current water condition',
                     ),
-
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
-                      fontWeight:
-                          FontWeight.w600,
-                      color:
-                          JalRakshakTheme
-                              .textDark,
+                      fontWeight: FontWeight.w600,
+                      color: JalRakshakTheme.textDark,
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+                  const SizedBox(height: 12),
 
-                  // ------------------------------------------------
+                  // =================================================
+                  // ML CLASSIFICATION
+                  // =================================================
+
+                  if (classification ==
+                      'washing/cleaning')
+                    _buildTreatmentItem(
+                      icon: Icons.cleaning_services,
+                      title: 'Washing/Cleaning',
+                      subtitle: _dashboardText(
+                        'Use this water for washing/cleaning as recommended by the ML model.',
+                      ),
+                      detail:
+                          'The Random Forest model recommends this water for washing and cleaning rather than direct drinking.',
+                      color:
+                          JalRakshakTheme.warningOrange,
+                    ),
+
+                  if (classification ==
+                      'irrigation/garden')
+                    _buildTreatmentItem(
+                      icon: Icons.local_florist,
+                      title: 'Irrigation/Garden',
+                      subtitle: _dashboardText(
+                        'Prefer this water for irrigation/garden use rather than direct drinking.',
+                      ),
+                      detail:
+                          'The Random Forest model recommends this water primarily for irrigation or garden use.',
+                      color: JalRakshakTheme.safeGreen,
+                    ),
+
+                  if (classification ==
+                      'drinking')
+                    _buildTreatmentItem(
+                      icon: Icons.local_drink,
+                      title: 'Drinking classification',
+                      subtitle:
+                          'The ML model classified this water for drinking use.',
+                      detail:
+                          'Continue normal drinking-water safety practices and verify the water quality before consumption.',
+                      color:
+                          JalRakshakTheme.safeGreen,
+                    ),
+
+                  if (unsafeClassification)
+                    _buildTreatmentItem(
+                      icon:
+                          Icons.warning_amber_rounded,
+                      title: _dashboardText(
+                        'Unsafe Water',
+                      ),
+                      subtitle: _dashboardText(
+                        'Do not drink this water directly.',
+                      ),
+                      detail: _dashboardText(
+                        'The current readings indicate that the water may not be suitable for drinking. Avoid direct consumption and use a safe drinking-water source.',
+                      ),
+                      color:
+                          JalRakshakTheme.dangerRed,
+                    ),
+
+                  // =================================================
                   // HIGH TDS
-                  // ------------------------------------------------
+                  // =================================================
 
                   if (highTds)
-
                     _buildTreatmentItem(
                       icon:
-                          Icons
-                              .water_drop_outlined,
-
-                      title:
-                          _language.text(
-                        'highTds',
-                      ),
-
-                      subtitle:
-                          _dashboardText(
+                          Icons.water_drop_outlined,
+                      title: _language.text('highTds'),
+                      subtitle: _dashboardText(
                         'Use properly filtered water for drinking.',
                       ),
-
-                      detail:
-                          _dashboardText(
+                      detail: _dashboardText(
                         'High TDS means the water contains a high amount of dissolved substances. Avoid drinking it directly and use properly filtered drinking water.',
                       ),
-
                       color:
-                          JalRakshakTheme
-                              .primaryBlue,
+                          JalRakshakTheme.warningOrange,
                     ),
 
-                  // ------------------------------------------------
+                  // =================================================
                   // HIGH TURBIDITY
-                  // ------------------------------------------------
+                  // =================================================
 
                   if (highTurbidity)
-
                     _buildTreatmentItem(
-                      icon:
-                          Icons.opacity_rounded,
-
+                      icon: Icons.opacity_rounded,
                       title:
                           _language.text(
                         'highTurbidity',
                       ),
-
-                      subtitle:
-                          _dashboardText(
+                      subtitle: _dashboardText(
                         'Let it settle, filter it and boil before drinking.',
                       ),
-
-                      detail:
-                          _dashboardText(
+                      detail: _dashboardText(
                         'If the water looks cloudy, keep it undisturbed so particles can settle. Filter the water and boil it before drinking.',
                       ),
-
                       color:
-                          JalRakshakTheme
-                              .primaryBlue,
+                          JalRakshakTheme.warningOrange,
                     ),
 
-                  // ------------------------------------------------
-                  // ABNORMAL PH
-                  // ------------------------------------------------
+                  // =================================================
+                  // pH
+                  // =================================================
 
                   if (phAbnormal)
-
                     _buildTreatmentItem(
                       icon:
-                          Icons
-                              .science_outlined,
-
-                      title:
-                          _dashboardText(
+                          Icons.science_outlined,
+                      title: _dashboardText(
                         'Unbalanced pH',
                       ),
-
-                      subtitle:
-                          _dashboardText(
+                      subtitle: _dashboardText(
                         'Avoid drinking this water directly.',
                       ),
-
-                      detail:
-                          _dashboardText(
+                      detail: _dashboardText(
                         'The measured pH is outside the preferred range. Do not drink this water directly. Use another safe drinking-water source until the water condition is checked and corrected.',
                       ),
-
                       color:
-                          JalRakshakTheme
-                              .primaryBlue,
+                          JalRakshakTheme.warningOrange,
                     ),
 
-                  // ------------------------------------------------
-                  // UNSAFE WATER
-                  // ------------------------------------------------
-
-                  if (unsafe)
-
-                    _buildTreatmentItem(
-                      icon:
-                          Icons
-                              .warning_amber_rounded,
-
-                      title:
-                          _dashboardText(
-                        'Unsafe Water',
-                      ),
-
-                      subtitle:
-                          _dashboardText(
-                        'Do not drink this water directly.',
-                      ),
-
-                      detail:
-                          _dashboardText(
-                        'The current readings indicate that the water may not be suitable for drinking. Avoid direct consumption and use a safe drinking-water source.',
-                      ),
-
-                      color:
-                          JalRakshakTheme
-                              .dangerRed,
-                    ),
-
-                  // ------------------------------------------------
-                  // SAFE CONDITION
-                  // ------------------------------------------------
+                  // =================================================
+                  // NOTHING REQUIRES TREATMENT
+                  // =================================================
 
                   if (!highTds &&
                       !highTurbidity &&
                       !phAbnormal &&
-                      !unsafe)
-
+                      !unsafeClassification)
                     Container(
                       width: double.infinity,
-
                       padding:
-                          const EdgeInsets
-                              .all(15),
-
-                      decoration:
-                          BoxDecoration(
+                          const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
                         color:
-                            JalRakshakTheme
-                                .safeGreen
-                                .withOpacity(
-                          0.07,
-                        ),
-
+                            JalRakshakTheme.safeGreen
+                                .withOpacity(0.07),
                         borderRadius:
-                            BorderRadius.circular(
-                          15,
-                        ),
-
+                            BorderRadius.circular(15),
                         border: Border.all(
                           color:
-                              JalRakshakTheme
-                                  .safeGreen
-                                  .withOpacity(
-                            0.15,
-                          ),
+                              JalRakshakTheme.safeGreen
+                                  .withOpacity(0.15),
                         ),
                       ),
-
                       child: Row(
                         children: [
-
                           const Icon(
                             Icons
                                 .check_circle_outline_rounded,
-
                             color:
-                                JalRakshakTheme
-                                    .safeGreen,
-
+                                JalRakshakTheme.safeGreen,
                             size: 22,
                           ),
-
-                          const SizedBox(
-                            width: 10,
-                          ),
-
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               _dashboardText(
                                 'Water is currently within the monitored safe range.',
                               ),
-
                               style:
                                   const TextStyle(
                                 fontSize: 12,
                                 color:
-                                    JalRakshakTheme
-                                        .safeGreen,
+                                    JalRakshakTheme.safeGreen,
                                 fontWeight:
-                                    FontWeight
-                                        .w600,
+                                    FontWeight.w600,
                               ),
                             ),
                           ),
@@ -3445,69 +2159,43 @@ class _DashboardScreenState
                       ),
                     ),
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+                  const SizedBox(height: 12),
 
-                  // ------------------------------------------------
-                  // INFORMATION BOX
-                  // ------------------------------------------------
+                  // =================================================
+                  // INFORMATION
+                  // =================================================
 
                   Container(
                     width: double.infinity,
-
                     padding:
-                        const EdgeInsets
-                            .all(13),
-
-                    decoration:
-                        BoxDecoration(
+                        const EdgeInsets.all(13),
+                    decoration: BoxDecoration(
                       color:
-                          JalRakshakTheme
-                              .primaryBlue
-                              .withOpacity(
-                        0.06,
-                      ),
-
+                          JalRakshakTheme.primaryBlue
+                              .withOpacity(0.06),
                       borderRadius:
-                          BorderRadius.circular(
-                        14,
-                      ),
+                          BorderRadius.circular(14),
                     ),
-
                     child: Row(
                       crossAxisAlignment:
-                          CrossAxisAlignment
-                              .start,
-
+                          CrossAxisAlignment.start,
                       children: [
-
                         const Icon(
-                          Icons
-                              .info_outline_rounded,
-
+                          Icons.info_outline_rounded,
                           color:
-                              JalRakshakTheme
-                                  .primaryBlue,
-
+                              JalRakshakTheme.primaryBlue,
                           size: 20,
                         ),
-
-                        const SizedBox(
-                          width: 10,
-                        ),
-
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             _dashboardText(
                               'These are basic safety suggestions. The app does not directly treat the water.',
                             ),
-
                             style:
                                 const TextStyle(
                               fontSize: 11,
-                              color:
-                                  Colors.grey,
+                              color: Colors.grey,
                               height: 1.4,
                             ),
                           ),
@@ -3535,75 +2223,45 @@ class _DashboardScreenState
     required String detail,
     required Color color,
   }) {
-
     return Padding(
-      padding:
-          const EdgeInsets.only(
-        bottom: 10,
-      ),
-
+      padding: const EdgeInsets.only(bottom: 10),
       child: Container(
         width: double.infinity,
-
-        decoration:
-            BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
-
-          borderRadius:
-              BorderRadius.circular(15),
-
+          borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color:
-                Colors.grey.shade200,
+            color: Colors.grey.shade200,
           ),
         ),
-
         child: ExpansionTile(
-          tilePadding:
-              const EdgeInsets.symmetric(
+          tilePadding: const EdgeInsets.symmetric(
             horizontal: 12,
             vertical: 3,
           ),
 
-          childrenPadding:
-              const EdgeInsets.fromLTRB(
+          childrenPadding: const EdgeInsets.fromLTRB(
             58,
             0,
             16,
             14,
           ),
 
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(
-              15,
-            ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
           ),
 
-          collapsedShape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(
-              15,
-            ),
+          collapsedShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
           ),
 
           leading: Container(
             width: 42,
             height: 42,
-
-            decoration:
-                BoxDecoration(
-              color:
-                  color.withOpacity(
-                0.10,
-              ),
-
-              shape:
-                  BoxShape.circle,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.10),
+              shape: BoxShape.circle,
             ),
-
             child: Icon(
               icon,
               color: color,
@@ -3613,27 +2271,18 @@ class _DashboardScreenState
 
           title: Text(
             title,
-
-            style:
-                TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              fontWeight:
-                  FontWeight.bold,
+              fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
 
           subtitle: Padding(
-            padding:
-                const EdgeInsets.only(
-              top: 4,
-            ),
-
+            padding: const EdgeInsets.only(top: 4),
             child: Text(
               subtitle,
-
-              style:
-                  const TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 color: Colors.grey,
                 height: 1.3,
@@ -3647,19 +2296,328 @@ class _DashboardScreenState
           ),
 
           children: [
-
             Align(
-              alignment:
-                  Alignment.centerLeft,
-
+              alignment: Alignment.centerLeft,
               child: Text(
                 detail,
-
-                style:
-                    const TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
                   color: Colors.grey,
                   height: 1.45,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ================================================================
+  // PRECAUTIONS
+  // ================================================================
+
+  Widget _buildPrecautions(
+    SensorData data,
+  ) {
+    final String classification =
+        data.status.trim().toLowerCase();
+
+    final bool highTurbidity =
+        data.turbidity >= 5;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color:
+              JalRakshakTheme.primaryBlue.withOpacity(0.12),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // --------------------------------------------------------
+          // HEADER
+          // --------------------------------------------------------
+
+          InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: () {
+              setState(() {
+                _precautionsExpanded =
+                    !_precautionsExpanded;
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color:
+                          JalRakshakTheme.primaryBlue
+                              .withOpacity(0.10),
+                      borderRadius:
+                          BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.health_and_safety_outlined,
+                      color:
+                          JalRakshakTheme.primaryBlue,
+                      size: 26,
+                    ),
+                  ),
+
+                  const SizedBox(width: 14),
+
+                  Expanded(
+                    child: Text(
+                      _language.text('precautions'),
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color:
+                            JalRakshakTheme.textDark,
+                      ),
+                    ),
+                  ),
+
+                  Icon(
+                    _precautionsExpanded
+                        ? Icons
+                            .keyboard_arrow_up_rounded
+                        : Icons
+                            .keyboard_arrow_down_rounded,
+                    color: Colors.grey,
+                    size: 27,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // --------------------------------------------------------
+          // CONTENT
+          // --------------------------------------------------------
+
+          if (_precautionsExpanded) ...[
+            Divider(
+              height: 1,
+              color: Colors.grey.shade200,
+            ),
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                8,
+              ),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  _dashboardText(
+                    'Follow these precautions to stay safe',
+                  ),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: JalRakshakTheme.textDark,
+                  ),
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                16,
+                8,
+                16,
+                18,
+              ),
+              child: Column(
+                children: [
+                  // =================================================
+                  // ALWAYS
+                  // =================================================
+
+                  _buildPrecautionItem(
+                    icon: Icons.no_drinks_outlined,
+                    title: _dashboardText(
+                      'Do not drink untreated water.',
+                    ),
+                    color:
+                        JalRakshakTheme.dangerRed,
+                  ),
+
+                  // =================================================
+                  // ML CLASSIFICATION
+                  // =================================================
+
+                  if (classification ==
+                      'washing/cleaning')
+                    _buildPrecautionItem(
+                      icon:
+                          Icons.cleaning_services,
+                      title: _dashboardText(
+                        'Use this water for washing/cleaning as recommended by the ML model.',
+                      ),
+                      color:
+                          JalRakshakTheme.warningOrange,
+                    ),
+
+                  if (classification ==
+                      'irrigation/garden')
+                    _buildPrecautionItem(
+                      icon: Icons.local_florist,
+                      title: _dashboardText(
+                        'Prefer this water for irrigation/garden use rather than direct drinking.',
+                      ),
+                      color:
+                          JalRakshakTheme.safeGreen,
+                    ),
+
+                  if (classification ==
+                      'unsafe')
+                    _buildPrecautionItem(
+                      icon:
+                          Icons.warning_amber_rounded,
+                      title: _dashboardText(
+                        'Avoid using this water for drinking until it is treated and verified.',
+                      ),
+                      color:
+                          JalRakshakTheme.dangerRed,
+                    ),
+
+                  // =================================================
+                  // TURBIDITY
+                  // =================================================
+
+                  if (highTurbidity)
+                    _buildPrecautionItem(
+                      icon: Icons.filter_alt_rounded,
+                      title:
+                          'If water appears cloudy, allow particles to settle and filter it before further use.',
+                      color:
+                          JalRakshakTheme.warningOrange,
+                    ),
+
+                  // =================================================
+                  // GENERAL PRECAUTIONS
+                  // =================================================
+
+                  _buildPrecautionItem(
+                    icon: Icons.water_drop_outlined,
+                    title: _dashboardText(
+                      'Always store water in clean containers.',
+                    ),
+                    color:
+                        JalRakshakTheme.primaryBlue,
+                  ),
+
+                  _buildPrecautionItem(
+                    icon:
+                        Icons.cleaning_services_outlined,
+                    title: _dashboardText(
+                      'Clean your storage tanks regularly.',
+                    ),
+                    color:
+                        JalRakshakTheme.primaryBlue,
+                  ),
+
+                  _buildPrecautionItem(
+                    icon:
+                        Icons.local_drink_outlined,
+                    title: _dashboardText(
+                      'Boil water if unsure about quality.',
+                    ),
+                    color:
+                        JalRakshakTheme.primaryBlue,
+                  ),
+
+                  _buildPrecautionItem(
+                    icon:
+                        Icons.water_damage_outlined,
+                    title: _dashboardText(
+                      'Use proper filters and replace them on time.',
+                    ),
+                    color:
+                        JalRakshakTheme.primaryBlue,
+                    last: true,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ================================================================
+  // PRECAUTION ITEM
+  // ================================================================
+
+  Widget _buildPrecautionItem({
+    required IconData icon,
+    required String title,
+    required Color color,
+    bool last = false,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: last ? 0 : 10,
+      ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 13,
+          vertical: 13,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: Colors.grey.shade200,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.10),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 22,
+              ),
+            ),
+
+            const SizedBox(width: 13),
+
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: JalRakshakTheme.textDark,
+                  height: 1.35,
                 ),
               ),
             ),

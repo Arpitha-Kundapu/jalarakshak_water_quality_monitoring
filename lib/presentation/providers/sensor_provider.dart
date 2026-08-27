@@ -5,59 +5,47 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/sensor_data.dart';
 import '../services/sensor_service.dart';
 
+// ============================================================
+// SENSOR SERVICE PROVIDER
+// ============================================================
+
 final sensorServiceProvider = Provider<SensorService>((ref) {
   return SensorService();
 });
 
+
+// ============================================================
+// LIVE SENSOR PROVIDER
+// ============================================================
+//
+// DATA FLOW:
+//
+// ESP32
+//   ↓
+// Firebase /latest
+//   ↓
+// Python Random Forest
+//   ↓
+// Firebase /prediction
+//   ↓
+// Flutter
+//
+// ============================================================
+
 final liveSensorProvider = StreamProvider<SensorData>((ref) async* {
   final sensorService = ref.read(sensorServiceProvider);
 
-  // ================================================================
-  // TEMPORARY SENSOR VALUES
-  // ================================================================
-  //
-  // For now:
-  //
-  // TDS + Turbidity
-  //       ↓
-  // Node.js Backend
-  //       ↓
-  // Python ML Model
-  //       ↓
-  // Classification
-  //
-  // Later:
-  //
-  // ESP32 → Node.js → ML → Flutter
-  //
-  // ================================================================
-
-  const double testTds = 250;
-  const double testTurbidity = 0.5;
-
-  // ------------------------------------------------
-  // TEMPORARY pH
-  // ------------------------------------------------
-  // Keep pH because it is part of the project/report.
-  // Later this value will come from the ESP32 pH sensor.
-  // ------------------------------------------------
-
-  const double testPh = 7.2;
-
   while (true) {
     try {
-      // ============================================================
-      // SEND DATA TO BACKEND
-      // ============================================================
+      // ========================================================
+      // GET SENSOR + ML DATA FROM FIREBASE
+      // ========================================================
 
-      final result = await sensorService.getWaterQuality(
-        tds: testTds,
-        turbidity: testTurbidity,
-      );
+      final result = await sensorService.getWaterQuality();
 
-      // ============================================================
-      // READ SENSOR DATA
-      // ============================================================
+      // ========================================================
+      // SENSOR DATA
+      // ========================================================
 
       final Map<String, dynamic> sensorData =
           result['sensor_data'] is Map
@@ -66,121 +54,182 @@ final liveSensorProvider = StreamProvider<SensorData>((ref) async* {
                 )
               : {};
 
-      // ============================================================
-      // READ ML CLASSIFICATION
-      // ============================================================
+      // ========================================================
+      // ML PREDICTION DATA
+      // ========================================================
 
-      final String classification =
-          result['classification']?.toString() ?? 'Unknown';
-
-      // ============================================================
-      // READ ML PROBABILITIES
-      // ============================================================
-
-      final Map<String, dynamic> probabilities =
-          result['probabilities'] is Map
+      final Map<String, dynamic> predictionData =
+          result['prediction'] is Map
               ? Map<String, dynamic>.from(
-                  result['probabilities'],
+                  result['prediction'],
                 )
               : {};
 
-      // ============================================================
-      // GET TDS
-      // ============================================================
+      // ========================================================
+      // TDS
+      // ========================================================
 
-      final double tds =
-          _toDouble(
-            sensorData['tds'],
-            testTds,
-          );
-
-      // ============================================================
-      // GET TURBIDITY
-      // ============================================================
-
-      final double turbidity =
-          _toDouble(
-            sensorData['turbidity'],
-            testTurbidity,
-          );
-
-      // ============================================================
-      // CALCULATE DISPLAY WQI
-      // ============================================================
-      //
-      // IMPORTANT:
-      // This is a temporary display score.
-      //
-      // It is NOT the ML probability.
-      //
-      // Later we can implement the final WQI formula based on
-      // the parameters coming from ESP32.
-      //
-      // ============================================================
-
-      final double wqi =
-          _calculateTemporaryWqi(
-        tds: tds,
-        turbidity: turbidity,
-        ph: testPh,
+      final double tds = _toDouble(
+        sensorData['tds_mg_L'],
+        0,
       );
 
-      // ============================================================
-      // SEND DATA TO DASHBOARD
-      // ============================================================
+      // ========================================================
+      // TURBIDITY
+      // ========================================================
 
-      yield SensorData(
+      final double turbidity = _toDouble(
+        sensorData['turbidity_NTU'],
+        0,
+      );
+
+      // ========================================================
+      // pH
+      // ========================================================
+      //
+      // There is currently no pH sensor in the hardware.
+      //
+      // We keep 7.0 temporarily so the existing dashboard
+      // continues to work.
+      //
+      // ========================================================
+
+      const double ph = 7.0;
+
+      // ========================================================
+      // ML CLASSIFICATION
+      // ========================================================
+
+      final String classification =
+          predictionData['classification']?.toString() ??
+              'Waiting for prediction';
+
+      // ========================================================
+      // ML PROBABILITIES
+      // ========================================================
+
+      final Map<String, dynamic> rawProbabilities =
+          predictionData['probabilities'] is Map
+              ? Map<String, dynamic>.from(
+                  predictionData['probabilities'],
+                )
+              : {};
+
+      // Convert Map<String, dynamic> → Map<String, double>
+      final Map<String, double> probabilities =
+          rawProbabilities.map(
+        (key, value) {
+          return MapEntry(
+            key,
+            _toDouble(value, 0),
+          );
+        },
+      );
+
+      // ========================================================
+      // WQI
+      // ========================================================
+      //
+      // This is currently a display-level score.
+      //
+      // It is NOT the Random Forest probability.
+      //
+      // ========================================================
+
+      final double wqi = _calculateWqi(
+        tds: tds,
+        turbidity: turbidity,
+      );
+
+      // ========================================================
+      // CREATE SENSOR DATA OBJECT
+      // ========================================================
+
+      final sensor = SensorData(
         wqi: wqi,
-        ph: testPh,
+        ph: ph,
         tds: tds,
         turbidity: turbidity,
         status: classification,
+
+        // NEW
+        probabilities: probabilities,
       );
 
-      // ============================================================
-      // DEBUG INFORMATION
-      // ============================================================
+      // ========================================================
+      // SEND DATA TO FLUTTER UI
+      // ========================================================
 
-      print('----------------------------------------');
-      print('JalRakshak ML Response');
-      print('TDS: $tds');
-      print('Turbidity: $turbidity');
-      print('pH: $testPh');
-      print('Classification: $classification');
-      print('Probabilities: $probabilities');
-      print('Temporary WQI: $wqi');
-      print('----------------------------------------');
-    } catch (e) {
-      // ============================================================
-      // BACKEND ERROR
-      // ============================================================
+      yield sensor;
+
+      // ========================================================
+      // DEBUG INFORMATION
+      // ========================================================
+
+      print('');
+      print('========================================');
+      print('JALRAKSHAK FIREBASE DATA');
+      print('========================================');
 
       print(
-        'JalRakshak Backend Error: $e',
+        'TDS: $tds mg/L',
+      );
+
+      print(
+        'Turbidity: $turbidity NTU',
+      );
+
+      print(
+        'pH: $ph',
+      );
+
+      print(
+        'Classification: $classification',
+      );
+
+      print(
+        'Probabilities: $probabilities',
+      );
+
+      print(
+        'WQI: $wqi',
+      );
+
+      print('========================================');
+    } catch (e) {
+      // ========================================================
+      // FIREBASE / CONNECTION ERROR
+      // ========================================================
+
+      print(
+        'JalRakshak Firebase Error: $e',
       );
 
       yield SensorData(
         wqi: 0,
-        ph: testPh,
-        tds: testTds,
-        turbidity: testTurbidity,
-        status: 'Backend Error',
+        ph: 7.0,
+        tds: 0,
+        turbidity: 0,
+        status: 'Connection Error',
+
+        probabilities: const {},
       );
     }
 
-    // ================================================================
-    // REFRESH EVERY 3 SECONDS
-    // ================================================================
+    // ==========================================================
+    // REFRESH EVERY 5 SECONDS
+    // ==========================================================
 
     await Future.delayed(
-      const Duration(seconds: 3),
+      const Duration(seconds: 5),
     );
   }
 });
 
-// ====================================================================
+
+// ============================================================
 // SAFE DOUBLE CONVERSION
-// ====================================================================
+// ============================================================
 
 double _toDouble(
   dynamic value,
@@ -190,49 +239,56 @@ double _toDouble(
     return value.toDouble();
   }
 
-  final double? parsed =
-      double.tryParse(
+  final parsed = double.tryParse(
     value?.toString() ?? '',
   );
 
   return parsed ?? fallback;
 }
 
-// ====================================================================
-// TEMPORARY WQI CALCULATION
-// ====================================================================
-//
-// This is only for the current integration/testing stage.
-//
-// It keeps the Dashboard's WQI card working while the actual
-// ESP32 sensor values and final WQI methodology are integrated.
-//
-// ====================================================================
 
-double _calculateTemporaryWqi({
+// ============================================================
+// TEMPORARY DISPLAY WQI
+// ============================================================
+//
+// NOTE:
+// This is NOT the Random Forest prediction.
+//
+// It is only retained so your existing dashboard's WQI card
+// continues to function.
+//
+// We can replace this with the final WQI methodology later.
+//
+// ============================================================
+
+double _calculateWqi({
   required double tds,
   required double turbidity,
-  required double ph,
 }) {
   double score = 100;
 
-  // TDS contribution
-  if (tds > 500) {
+  // ------------------------------------------------------------
+  // TDS
+  // ------------------------------------------------------------
+
+  if (tds > 1000) {
+    score -= 40;
+  } else if (tds > 500) {
     score -= 25;
   } else if (tds > 300) {
     score -= 10;
   }
 
-  // Turbidity contribution
-  if (turbidity > 5) {
-    score -= 25;
-  } else if (turbidity > 3) {
-    score -= 10;
-  }
+  // ------------------------------------------------------------
+  // TURBIDITY
+  // ------------------------------------------------------------
 
-  // pH contribution
-  if (ph < 6.5 || ph > 8.5) {
-    score -= 25;
+  if (turbidity > 5) {
+    score -= 30;
+  } else if (turbidity > 3) {
+    score -= 15;
+  } else if (turbidity > 1) {
+    score -= 5;
   }
 
   return score.clamp(0, 100).toDouble();

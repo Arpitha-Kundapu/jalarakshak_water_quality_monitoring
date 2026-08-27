@@ -54,3 +54,6 @@ ml_model/.venv/
 
 frontend/.dart_tool/
 frontend/build/
+
+# Firebase private credentials
+ml_model/ml_service/firebase-service-account.json
