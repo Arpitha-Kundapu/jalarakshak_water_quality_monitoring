@@ -1,6 +1,53 @@
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
+
+const USERS_FILE = path.join(__dirname, "users.json");
+
+// Helper to read users
+function readUsers() {
+  try {
+    if (!fs.existsSync(USERS_FILE)) {
+      return [];
+    }
+    const data = fs.readFileSync(USERS_FILE, "utf8");
+    return JSON.parse(data || "[]");
+  } catch (error) {
+    console.error("Error reading users file:", error.message);
+    return [];
+  }
+}
+
+// Helper to write users
+function writeUsers(users) {
+  try {
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf8");
+  } catch (error) {
+    console.error("Error writing users file:", error.message);
+  }
+}
+
+// Password hashing function using built-in crypto
+function hashPassword(password) {
+  const salt = "jalrakshak_salt_value";
+  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex");
+  return hash;
+}
+
+// Initialize database with default user if empty
+const users = readUsers();
+if (users.length === 0) {
+  users.push({
+    name: "JalRakshak User",
+    email: "test@jalrakshak.com",
+    passwordHash: hashPassword("123456"),
+    createdAt: new Date().toISOString(),
+  });
+  writeUsers(users);
+}
 
 const app = express();
 const PORT = 5000;
@@ -41,25 +88,32 @@ app.post("/api/login", (req, res) => {
       });
     }
 
-    // Temporary demo credentials
-    // Replace with database authentication later.
-    const DEMO_EMAIL = "test@jalrakshak.com";
-    const DEMO_PASSWORD = "123456";
+    const trimmedEmail = email.trim().toLowerCase();
+    const usersList = readUsers();
+    const user = usersList.find((u) => u.email.toLowerCase() === trimmedEmail);
 
-    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
-      return res.json({
-        success: true,
-        message: "Login successful",
-        user: {
-          email: email,
-          name: "JalRakshak User",
-        },
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
       });
     }
 
-    return res.status(401).json({
-      success: false,
-      message: "Invalid email or password",
+    const calculatedHash = hashPassword(password);
+    if (user.passwordHash !== calculatedHash) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Login successful",
+      user: {
+        email: user.email,
+        name: user.name,
+      },
     });
 
   } catch (error) {
@@ -68,6 +122,69 @@ app.post("/api/login", (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error during login",
+    });
+  }
+});
+
+// --------------------------------------------------
+// REGISTER ROUTE
+// --------------------------------------------------
+
+app.post("/api/register", (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Name, email, and password are required",
+      });
+    }
+
+    const trimmedEmail = email.trim().toLowerCase();
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long",
+      });
+    }
+
+    const usersList = readUsers();
+    const userExists = usersList.some((u) => u.email.toLowerCase() === trimmedEmail);
+
+    if (userExists) {
+      return res.status(409).json({
+        success: false,
+        message: "An account with this email address already exists",
+      });
+    }
+
+    const newUser = {
+      name: name.trim(),
+      email: trimmedEmail,
+      passwordHash: hashPassword(password),
+      createdAt: new Date().toISOString(),
+    };
+
+    usersList.push(newUser);
+    writeUsers(usersList);
+
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      user: {
+        email: newUser.email,
+        name: newUser.name,
+      },
+    });
+
+  } catch (error) {
+    console.error("Registration Error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error during registration",
     });
   }
 });

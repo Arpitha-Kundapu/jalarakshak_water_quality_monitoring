@@ -7,8 +7,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'language_screen.dart';
+import 'main_screen.dart';
 
 // ============================================================
 // SPLASH SCREEN
@@ -82,13 +84,25 @@ class _SplashScreenState extends State<SplashScreen>
     // MOVE TO LANGUAGE SCREEN AFTER 4 SECONDS
     // ----------------------------------------------------------
 
-    _timer = Timer(const Duration(seconds: 4), () {
+    _timer = Timer(const Duration(seconds: 4), () async {
       if (!mounted) return;
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LanguageScreen()),
-      );
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final bool isLoggedIn = prefs.getBool('is_logged_in') ?? false;
+
+      if (!mounted) return;
+
+      if (isLoggedIn) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LanguageScreen()),
+        );
+      }
     });
   }
 

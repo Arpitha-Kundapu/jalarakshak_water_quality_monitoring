@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '/core/theme.dart';
 import '/presentation/providers/language_provider.dart';
 import '/presentation/providers/theme_provider.dart';
+import 'login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -1024,10 +1026,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // ======================================================
 
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(
                   dialogContext,
                 );
+
+                final SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('is_logged_in', false);
+
+                if (!mounted) return;
 
                 ScaffoldMessenger.of(
                   context,
@@ -1040,6 +1047,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
+                );
+
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ),
+                  (route) => false,
                 );
               },
 
