@@ -1,0 +1,14 @@
+[
+  {
+    "name": "JalRakshak User",
+    "email": "test@jalrakshak.com",
+    "passwordHash": "1d3195fb45776d37cd2c4ed757e0d8adee07aef3a9e0ca994bffa9e588a85ea0e94187e4ef33c922510dd18819514538633aecf68f2ed038349ce5e4988f80db",
+    "createdAt": "2026-08-28T02:37:38.911Z"
+  },
+  {
+    "name": "Arpitha K",
+    "email": "anwiarpik@gmail.com",
+    "passwordHash": "e313dc8c0ad7e543a246c952200fa27da3ab7e103d785f6477b104d29c9f707c5bd04d8bbe75b724218c988f309ceba96dfc0b9e17039ae3c8e76d5a65f58723",
+    "createdAt": "2026-08-28T02:39:21.931Z"
+  }
+]

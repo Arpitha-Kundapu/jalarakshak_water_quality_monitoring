@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '/presentation/providers/language_provider.dart';
-import '/presentation/screens/main_screen.dart';
+import '../providers/language_provider.dart';
+import '../services/auth_service.dart';
+import 'main_screen.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,6 +15,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  static const bool showRegisterAndForgot = true;
+
   final TextEditingController emailController =
       TextEditingController();
 
@@ -19,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
       TextEditingController();
 
   bool obscurePassword = true;
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -31,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // LOGIN
   // ============================================================
 
-  void login() {
+  Future<void> login() async {
     final String email =
         emailController.text.trim();
 
@@ -82,46 +88,43 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // ----------------------------------------------------------
-    // DEMO LOGIN CREDENTIALS
-    // ----------------------------------------------------------
-    //
-    // Temporary authentication.
-    //
-    // Email:
-    // user@gmail.com
-    //
-    // Password:
-    // 123456
-    //
-    // Later we can connect this to your backend/database.
-    // ----------------------------------------------------------
-
-    const String correctEmail =
-        'user@gmail.com';
-
-    const String correctPassword =
-        '123456';
-
-    if (email != correctEmail ||
-        password != correctPassword) {
-      _showMessage(
-        'Invalid email or password',
-      );
-      return;
-    }
+    setState(() {
+      isLoading = true;
+    });
 
     // ----------------------------------------------------------
-    // SUCCESS
+    // DYNAMIC AUTHENTICATION
     // ----------------------------------------------------------
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            const MainScreen(),
-      ),
+    final result = await AuthService.login(
+      email: email,
+      password: password,
     );
+
+    setState(() {
+      isLoading = false;
+    });
+
+    if (result['success']) {
+      // --------------------------------------------------------
+      // SUCCESS
+      // --------------------------------------------------------
+
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('is_logged_in', true);
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              const MainScreen(),
+        ),
+      );
+    } else {
+      _showMessage(result['message'] ?? 'Invalid email or password');
+    }
   }
 
   // ============================================================
@@ -410,27 +413,30 @@ class _LoginScreenState extends State<LoginScreen> {
               // FORGOT PASSWORD
               // ==================================================
 
-              Align(
-                alignment:
-                    Alignment.centerRight,
+              Visibility(
+                visible: showRegisterAndForgot,
+                child: Align(
+                  alignment:
+                      Alignment.centerRight,
 
-                child: TextButton(
-                  onPressed: () {
-                    _showMessage(
-                      'Forgot password feature will be added later',
-                    );
-                  },
+                  child: TextButton(
+                    onPressed: () {
+                      _showMessage(
+                        'Forgot password feature will be added later',
+                      );
+                    },
 
-                  child: Text(
-                    languageProvider
-                        .text(
-                      'forgotPassword',
-                    ),
+                    child: Text(
+                      languageProvider
+                          .text(
+                        'forgotPassword',
+                      ),
 
-                    style:
-                        const TextStyle(
-                      color:
-                          Color(0xFF1768E5),
+                      style:
+                          const TextStyle(
+                        color:
+                            Color(0xFF1768E5),
+                      ),
                     ),
                   ),
                 ),
@@ -450,7 +456,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 child:
                     ElevatedButton(
-                  onPressed: login,
+                  onPressed: isLoading ? null : login,
 
                   style:
                       ElevatedButton
@@ -463,6 +469,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     foregroundColor:
                         Colors.white,
 
+                    disabledBackgroundColor:
+                        const Color(0xFF1768E5).withOpacity(0.6),
+
                     elevation: 0,
 
                     shape:
@@ -474,19 +483,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  child: Text(
-                    languageProvider
-                        .text(
-                      'login',
-                    ),
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Text(
+                          languageProvider
+                              .text(
+                            'login',
+                          ),
 
-                    style:
-                        const TextStyle(
-                      fontSize: 17,
-                      fontWeight:
-                          FontWeight.bold,
-                    ),
-                  ),
+                          style:
+                              const TextStyle(
+                            fontSize: 17,
+                            fontWeight:
+                                FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
 
@@ -496,50 +514,56 @@ class _LoginScreenState extends State<LoginScreen> {
               // REGISTER
               // ==================================================
 
-              Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
+              Visibility(
+                visible: showRegisterAndForgot,
+                child: Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.center,
 
-                children: [
+                  children: [
 
-                  Text(
-                    languageProvider
-                        .text(
-                      'noAccount',
-                    ),
-
-                    style:
-                        const TextStyle(
-                      color: Colors.grey,
-                    ),
-                  ),
-
-                  TextButton(
-                    onPressed: () {
-                      _showMessage(
-                        'Registration feature will be added later',
-                      );
-                    },
-
-                    child: Text(
+                    Text(
                       languageProvider
                           .text(
-                        'register',
+                        'noAccount',
                       ),
 
                       style:
                           const TextStyle(
-                        color:
-                            Color(
-                          0xFF1768E5,
-                        ),
-
-                        fontWeight:
-                            FontWeight.bold,
+                        color: Colors.grey,
                       ),
                     ),
-                  ),
-                ],
+
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterScreen(),
+                          ),
+                        );
+                      },
+
+                      child: Text(
+                        languageProvider
+                            .text(
+                          'register',
+                        ),
+
+                        style:
+                            const TextStyle(
+                          color:
+                              Color(
+                            0xFF1768E5,
+                          ),
+
+                          fontWeight:
+                              FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
               const SizedBox(height: 25),
