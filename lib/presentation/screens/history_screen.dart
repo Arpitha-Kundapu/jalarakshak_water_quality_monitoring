@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart' as language_provider;
 
 import '../../core/theme.dart';
+import '../../core/file_helper.dart';
 import '../providers/language_provider.dart';
 import '../services/sensor_service.dart';
 
@@ -78,6 +79,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         'refresh': 'Refresh',
         'downloadReport': 'Download Report',
         'reportSoon': 'Report generation will be available soon.',
+        'reportGenerating': 'Generating report...',
+        'reportSavedSuccess': 'Report saved/shared successfully!',
+        'reportError': 'Failed to generate report.',
         'latestReadings': 'Latest Readings',
         'mgL': 'mg/L',
         'ntu': 'NTU',
@@ -100,6 +104,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         'refresh': 'ರಿಫ್ರೆಶ್',
         'downloadReport': 'ವರದಿಯನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ',
         'reportSoon': 'ವರದಿ ರಚಿಸುವ ಸೌಲಭ್ಯ ಶೀಘ್ರದಲ್ಲೇ ಲಭ್ಯವಾಗಲಿದೆ.',
+        'reportGenerating': 'ವರದಿ ಸಿದ್ಧಪಡಿಸಲಾಗುತ್ತಿದೆ...',
+        'reportSavedSuccess': 'ವರದಿಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ/ಹಂಚಿಕೊಳ್ಳಲಾಗಿದೆ.',
+        'reportError': 'ವರದಿ ಸಿದ್ಧಪಡಿಸಲು ವಿಫಲವಾಗಿದೆ.',
         'latestReadings': 'ಇತ್ತೀಚಿನ ಓದುಗಳು',
         'mgL': 'mg/L',
         'ntu': 'NTU',
@@ -122,6 +129,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         'refresh': 'रिफ्रेश',
         'downloadReport': 'रिपोर्ट डाउनलोड करें',
         'reportSoon': 'रिपोर्ट बनाने की सुविधा जल्द उपलब्ध होगी।',
+        'reportGenerating': 'रिपोर्ट तैयार की जा रही है...',
+        'reportSavedSuccess': 'रिपोर्ट सफलतापूर्वक सहेज ली गई/साझा कर दी गई।',
+        'reportError': 'रिपोर्ट तैयार करने में विफल।',
         'latestReadings': 'नवीनतम रीडिंग',
         'mgL': 'mg/L',
         'ntu': 'NTU',
@@ -427,6 +437,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                     _buildDownloadButton(
                       language,
+                      records,
                     ),
                   ],
                 ),
@@ -1119,6 +1130,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget _buildDownloadButton(
     LanguageProvider language,
+    List<Map<String, dynamic>> records,
   ) {
     return SizedBox(
       width: 170,
@@ -1126,8 +1138,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
       child: ElevatedButton.icon(
         onPressed: () {
-          _showReportMessage(
+          _downloadReport(
             language,
+            records,
           );
         },
 
@@ -1180,25 +1193,97 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   // ================================================================
-  // REPORT MESSAGE
+  // GENERATE AND SHARE REPORT (CSV)
   // ================================================================
 
-  void _showReportMessage(
+  Future<void> _downloadReport(
     LanguageProvider language,
-  ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
+    List<Map<String, dynamic>> records,
+  ) async {
+    // Show a loading snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          _text(
-            language,
-            'reportSoon',
-          ),
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text(_text(language, 'reportGenerating')),
+          ],
         ),
-
-        behavior:
-            SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
       ),
     );
+
+    try {
+      final StringBuffer csvBuffer = StringBuffer();
+      
+      // Headers
+      csvBuffer.writeln('Push ID,Timestamp (Unix),Date & Time,TDS (mg/L),Turbidity (NTU),WQI');
+      
+      for (final record in records) {
+        final double tds = _toDouble(record['tds_mg_L']);
+        final double turbidity = _toDouble(record['turbidity_NTU']);
+        final double wqi = _calculateWqi(tds: tds, turbidity: turbidity);
+        final dynamic rawTimestamp = record['timestamp'];
+        
+        String formattedDate = '';
+        if (rawTimestamp != null) {
+          final int timestamp = int.tryParse(rawTimestamp.toString()) ?? 0;
+          if (timestamp > 0) {
+            final DateTime dt = timestamp > 100000000000
+                ? DateTime.fromMillisecondsSinceEpoch(timestamp)
+                : DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+            formattedDate = dt.toLocal().toString();
+          }
+        }
+        
+        csvBuffer.writeln(
+          '${record['_id'] ?? ""},'
+          '${rawTimestamp ?? ""},'
+          '"$formattedDate",'
+          '${tds.toStringAsFixed(1)},'
+          '${turbidity.toStringAsFixed(2)},'
+          '${wqi.toStringAsFixed(0)}'
+        );
+      }
+
+      // Download and share report cross-platform
+      await downloadAndShareReport(
+        csvContent: csvBuffer.toString(),
+        fileName: 'JalRakshak_Water_Quality_Report.csv',
+        shareSubject: 'JalRakshak Water Quality Report',
+        shareText: 'Here is the water quality report generated by JalRakshak.',
+      );
+
+      if (!mounted) return;
+
+      // Hide the loading snackbar and show success
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_text(language, 'reportSavedSuccess')),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("${_text(language, 'reportError')}: $e"),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }
